@@ -1,0 +1,52 @@
+version: 2.1
+
+cache_key: &cache_key ts-stdlib-20201114-{{ checksum "yarn.lock" }}
+
+jobs:
+  lint-build-test:
+    docker:
+      - image: cszatma/cimg-node:lts
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore yarn cache
+          keys:
+            - *cache_key
+      - run:
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          name: Save yarn cache
+          key: *cache_key
+          paths:
+            - node_modules/
+      - run:
+          name: Ensure no dependencies
+          command: yarn ensure-no-deps
+      - run:
+          name: Run linter
+          command: yarn lint
+      - run:
+          name: Check deno runtime types
+          command: yarn check-types:deno
+      - run:
+          name: Build library for targets
+          command: yarn build
+      - run:
+          name: Run deno tests
+          command: yarn test:deno
+      - run:
+          name: Run node tests
+          command: yarn test:node
+      - run:
+          name: Run e2e tests
+          command: yarn e2e
+
+workflows:
+  build-test:
+    jobs:
+      - lint-build-test:
+          filters:
+            branches:
+              ignore:
+                - deno-latest

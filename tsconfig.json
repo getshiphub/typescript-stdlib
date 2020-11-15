@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": true, // Needed for scripts
+    "noEmit": true
+  },
+  "include": ["scripts", "src", "test/node"],
+  "exclude": ["node_modules", "dist", "**/*_deno.ts"]
+}

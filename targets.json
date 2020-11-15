@@ -1,0 +1,39 @@
+{
+  "targets": {
+    "node": {
+      "action": "compile",
+      "requiresRuntime": true,
+      "tsconfigPath": "./tsconfig.build.json"
+    },
+    "deno": {
+      "action": "transform",
+      "entrypoint": {
+        "name": "mod.ts",
+        "includeExtension": true
+      },
+      "deleteImports": ["_runtime/runtime"],
+      "replace": {
+        "runtime": "Deno"
+      }
+    }
+  },
+  "global": ["global.ts"],
+  "modules": {
+    "bytes": "*",
+    "cmd": "node",
+    "colors": "*",
+    "env": "*",
+    "errors": "*",
+    "fatal": "*",
+    "fs": "node",
+    "hex": "*",
+    "http": "node",
+    "log": "*",
+    "sets": "*",
+    "strconv": "*",
+    "strings": "*",
+    "time": "*",
+    "util": "*",
+    "uuid": "node"
+  }
+}

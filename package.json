@@ -1,0 +1,100 @@
+{
+  "name": "ts-stdlib",
+  "version": "0.0.0",
+  "description": "A standard library for TypeScript.",
+  "keywords": [
+    "standard library",
+    "stdlib",
+    "ts stdlib",
+    "typescript stdlib"
+  ],
+  "author": {
+    "name": "Christopher Szatmary"
+  },
+  "repository": "getshiphub/ts-stdlib",
+  "bugs": {
+    "url": "https://github.com/getshiphub/ts-stdlib/issues"
+  },
+  "license": "MIT",
+  "main": "dist/node/index.js",
+  "types": "dist/node/index.d.ts",
+  "files": [
+    "dist/node/"
+  ],
+  "engines": {
+    "node": ">= 10.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build:deno": "node scripts/target_generator.js deno",
+    "build:node": "node scripts/target_generator.js node",
+    "build": "yarn build:deno && yarn build:node",
+    "check-types:deno": "node scripts/check_deno_runtime.js",
+    "check-types": "tsc && yarn check-types:deno",
+    "clean": "rimraf dist && rimraf coverage && rimraf .deno-release",
+    "deno-release": "node scripts/deno_release.js",
+    "e2e:deno": "deno run e2e/smoke_deno.ts",
+    "e2e": "yarn e2e:deno",
+    "ensure-no-deps": "node scripts/ensure_no_deps.js",
+    "fmt": "prettier --write '{scripts,src,test}/**/*.{js,ts}'",
+    "lint:deno": "deno lint --unstable test/deno",
+    "lint:node": "eslint --ext=js,ts .",
+    "lint:node:fix": "eslint --fix --ext=js,ts .",
+    "lint": "yarn lint:deno && yarn lint:node",
+    "lint:fix": "yarn lint:node",
+    "prepare-release": "yarn clean && yarn build && yarn verify",
+    "release": "release-it --only-version",
+    "test:deno": "deno test --allow-env test/deno/",
+    "test:node": "NODE_ENV=test jest --coverage",
+    "test:node:ci": "yarn test --runInBand --colors",
+    "test:node:nocover": "NODE_ENV=test jest",
+    "test": "yarn test:deno && yarn test:node",
+    "verify": "yarn ensure-no-deps && yarn lint && yarn check-types:deno && yarn test && yarn e2e"
+  },
+  "devDependencies": {
+    "@shiphub/eslint-config": "^0.0.2",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^14.14.7",
+    "@types/rimraf": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "@typescript-eslint/parser": "^4.7.0",
+    "eslint": "^7.13.0",
+    "eslint-import-resolver-typescript": "^2.3.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "husky": "^4.3.0",
+    "jest": "^26.6.3",
+    "lint-staged": "^10.5.1",
+    "prettier": "^2.1.2",
+    "release-it": "^14.2.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.4.4",
+    "typescript": "^4.0.5"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@shiphub"
+    ],
+    "globals": {
+      "Atomics": "readonly",
+      "SharedArrayBuffer": "readonly"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,json}": [
+      "prettier --write"
+    ]
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "printWidth": 100
+  }
+}

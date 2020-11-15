@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "before:init": "yarn prepare-release",
+    "before:release": "yarn deno-release prepare ${version}",
+    "after:release": "yarn deno-release release"
+  },
+  "git": {
+    "requireBranch": "master",
+    "requireCommits": true,
+    "tagName": "${version}",
+    "tagAnnotation": "${version}"
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v${version}"
+  }
+}
