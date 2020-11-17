@@ -4,9 +4,23 @@
 import { runtime } from "../_runtime/runtime";
 
 let shouldShowErrDetail = false;
+let onExitHandler: (() => void) | undefined;
 
+/**
+ * shouldShowErrDetail sets whether or not the `detailedError` method
+ * should be used when `exitErr` is called.
+ */
 export function showErrDetail(b: boolean): void {
   shouldShowErrDetail = b;
+}
+
+/**
+ * onExit registers a handler that will run before the process exits
+ * when either `exitErr` or `exit` is called.
+ * This is useful for performing any clean up actions before exiting.
+ */
+export function onExit(handler: (() => void) | undefined): void {
+  onExitHandler = handler;
 }
 
 /**
@@ -22,6 +36,7 @@ export function exitErr(err: error, message: string, ...optionalParams: unknown[
     console.error(`Error: ${err.error()}`);
   }
 
+  onExitHandler?.();
   runtime.exit(1);
 }
 
@@ -31,5 +46,6 @@ export function exitErr(err: error, message: string, ...optionalParams: unknown[
  */
 export function exit(message: string, ...optionalParams: unknown[]): never {
   console.error(message, ...optionalParams);
+  onExitHandler?.();
   runtime.exit(1);
 }
