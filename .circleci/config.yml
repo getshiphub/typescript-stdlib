@@ -37,7 +37,7 @@ jobs:
           command: yarn test:deno
       - run:
           name: Run node tests
-          command: yarn test:node
+          command: yarn test:node:ci
       - run:
           name: Run e2e tests
           command: yarn e2e
