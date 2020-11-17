@@ -298,6 +298,7 @@ if (target.entrypoint !== undefined) {
 // Create runtime if required
 if (target.requiresRuntime) {
   const dstRuntimeDir = path.join(dstDir, "_runtime");
+  const excludeList = new Set(["deno.d.ts"]);
   fs.mkdirSync(dstRuntimeDir, { recursive: true });
 
   /** @type {string[]} */
@@ -306,6 +307,10 @@ if (target.requiresRuntime) {
   /** @type {string[]} */
   const runtimeFiles = [];
   for (const f of fs.readdirSync(runtimeDir)) {
+    if (excludeList.has(f)) {
+      continue;
+    }
+
     if (f.endsWith(".d.ts")) {
       declarationFiles.push(path.basename(f));
     }
