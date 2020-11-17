@@ -49,7 +49,7 @@
     "release": "release-it --only-version",
     "test:deno": "deno test --allow-env test/deno/",
     "test:node": "NODE_ENV=test jest --coverage",
-    "test:node:ci": "yarn test --runInBand --colors",
+    "test:node:ci": "NODE_ENV=test jest --coverage --runInBand --colors",
     "test:node:nocover": "NODE_ENV=test jest",
     "test": "yarn test:deno && yarn test:node",
     "verify": "yarn ensure-no-deps && yarn lint && yarn check-types:deno && yarn test && yarn e2e"
