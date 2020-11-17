@@ -1,4 +1,4 @@
-# ts-stdlib
+# typescript-stdlib
 
 A standard library for TypeScript.
 
@@ -16,17 +16,17 @@ This library is primarily intended for use with Node.js. However, large parts of
 
 Install the package using npm:
 ```
-npm install ts-stdlib
+npm install typescript-stdlib
 ```
 
 Or use yarn:
 ```
-yarn add ts-stdlib
+yarn add typescript-stdlib
 ```
 
 Import the desired modules:
 ```ts
-import { Result, errors } from "ts-stdlib";
+import { Result, errors } from "typescript-stdlib";
 ```
 
 ### Deno

@@ -10,7 +10,7 @@ As a result the package explosion that is often common in the node ecosystem doe
 
 After working with Go so much, we became more and more frustrated with npm and `node_modules`. Specifically the culture around having tons of small packages and preferring to `npm install` to get 2 lines of code instead of writing it yourself. We got tired of `node_modules` always exploding and becoming massive, and `yarn.lock` having thousands of lines for all the transitive dependencies.
 
-`ts-stdlib` is an attempted solution to this problem by bringing the Go mentality to node. This library has **zero** dependencies and provides a rich set of core functionality that can be used for a wide variety of tasks. The goal is to add this one dependency instead of installing a multitude of small packages.
+`typescript-stdlib` is an attempted solution to this problem by bringing the Go mentality to node. This library has **zero** dependencies and provides a rich set of core functionality that can be used for a wide variety of tasks. The goal is to add this one dependency instead of installing a multitude of small packages.
 
 This is also largly inspired by [deno](https://deno.land/) as it is copying a lot of what Go does great (in our opinion) and has its own standard library.
 

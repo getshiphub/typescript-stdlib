@@ -1,5 +1,5 @@
 {
-  "name": "ts-stdlib",
+  "name": "typescript-stdlib",
   "version": "0.0.0",
   "description": "A standard library for TypeScript.",
   "keywords": [
@@ -11,9 +11,9 @@
   "author": {
     "name": "Christopher Szatmary"
   },
-  "repository": "getshiphub/ts-stdlib",
+  "repository": "getshiphub/typescript-stdlib",
   "bugs": {
-    "url": "https://github.com/getshiphub/ts-stdlib/issues"
+    "url": "https://github.com/getshiphub/typescript-stdlib/issues"
   },
   "license": "MIT",
   "main": "dist/node/index.js",

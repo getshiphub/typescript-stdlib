@@ -1,6 +1,6 @@
 # Style Guide
 
-This document describes the styleguide conventions of the `ts-stdlib` repo.
+This document describes the styleguide conventions of the `typescript-stdlib` repo.
 
 This is heavily inspired by the [deno style guide](https://deno.land/std/style_guide.md) and a lot of the rules are taken from there.
 
@@ -23,7 +23,7 @@ For JavaScript files in `scripts/` types should be declared using JSDoc where th
 
 ## This library must have zero dependencies.
 
-`ts-stdlib` is intended to have baseline functionality that all TypeScript programs can rely on. Any additional functionality needed to implement something should also be implemented.
+`typescript-stdlib` is intended to have baseline functionality that all TypeScript programs can rely on. Any additional functionality needed to implement something should also be implemented.
 
 In rare cases where a 3rd party library really should be used instead of reimplemented, copy the code into the project (make sure to include the appropriate copyright header).
 An example of this is `src/fs/rm.ts`.

@@ -1,6 +1,6 @@
 version: 2.1
 
-cache_key: &cache_key ts-stdlib-20201114-{{ checksum "yarn.lock" }}
+cache_key: &cache_key typescript-stdlib-20201114-{{ checksum "yarn.lock" }}
 
 jobs:
   lint-build-test:

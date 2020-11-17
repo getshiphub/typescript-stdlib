@@ -7,7 +7,7 @@ const rimraf = require("rimraf");
 
 const rootDir = path.resolve(__dirname, "../");
 const denoReleaseDir = path.join(rootDir, ".deno-release");
-const repo = "git@github.com:getshiphub/ts-stdlib.git";
+const repo = "git@github.com:getshiphub/typescript-stdlib.git";
 const branch = "deno-latest";
 
 /**
