@@ -47,7 +47,7 @@
     "lint:fix": "yarn lint:node",
     "prepare-release": "yarn clean && yarn build && yarn verify",
     "release": "release-it --only-version",
-    "test:deno": "deno test --allow-env test/deno/",
+    "test:deno": "deno test --allow-env --allow-read --allow-run test/deno/",
     "test:node": "NODE_ENV=test jest --coverage",
     "test:node:ci": "NODE_ENV=test jest --coverage --runInBand --colors",
     "test:node:nocover": "NODE_ENV=test jest",

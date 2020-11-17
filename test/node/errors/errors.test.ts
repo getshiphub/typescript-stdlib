@@ -75,7 +75,6 @@ describe("errors", () => {
     expect(err.error()).toBe("IO Error");
   });
 
-  // Fix https://github.com/cszatma/node-library/issues/240
   test("errors.withStack: error or undefined", () => {
     const err1 = undefined as error | undefined;
     const err2 = errors.newError("oops") as error | undefined;
@@ -102,7 +101,6 @@ describe("errors", () => {
     expect(err.error()).toBe("error loading config: error reading file: IO Error");
   });
 
-  // Fix https://github.com/cszatma/node-library/issues/240
   test("errors.withMessage: error or undefined", () => {
     const err1 = undefined as error | undefined;
     const err2 = errors.newError("oops") as error | undefined;
@@ -130,7 +128,6 @@ describe("errors", () => {
     );
   });
 
-  // Fix https://github.com/cszatma/node-library/issues/240
   test("errors.wrap: error or undefined", () => {
     const err1 = undefined as error | undefined;
     const err2 = errors.newError("oops") as error | undefined;

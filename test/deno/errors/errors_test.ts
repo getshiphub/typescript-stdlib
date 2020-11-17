@@ -75,7 +75,6 @@ Deno.test("errors.withStack: wrap error", () => {
   testing.assertEquals(err.error(), "IO Error");
 });
 
-// Fix https://github.com/cszatma/node-library/issues/240
 Deno.test("errors.withStack: error or undefined", () => {
   const err1 = undefined as error | undefined;
   const err2 = errors.newError("oops") as error | undefined;
@@ -102,7 +101,6 @@ Deno.test("errors.withMessage: wrap error", () => {
   testing.assertEquals(err.error(), "error loading config: error reading file: IO Error");
 });
 
-// Fix https://github.com/cszatma/node-library/issues/240
 Deno.test("errors.withMessage: error or undefined", () => {
   const err1 = undefined as error | undefined;
   const err2 = errors.newError("oops") as error | undefined;
@@ -131,7 +129,6 @@ Deno.test("errors.wrap: nested errors", () => {
   );
 });
 
-// Fix https://github.com/cszatma/node-library/issues/240
 Deno.test("errors.wrap: error or undefined", () => {
   const err1 = undefined as error | undefined;
   const err2 = errors.newError("oops") as error | undefined;
