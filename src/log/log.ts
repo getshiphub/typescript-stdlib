@@ -6,8 +6,6 @@ import * as errors from "../errors/mod";
 
 /** The available log levels for a logger. */
 export enum Level {
-  panic,
-  fatal,
   error,
   warn,
   info,
@@ -15,14 +13,7 @@ export enum Level {
 }
 
 /** All available log levels. */
-export const allLevels: readonly Level[] = [
-  Level.panic,
-  Level.fatal,
-  Level.error,
-  Level.warn,
-  Level.info,
-  Level.debug,
-];
+export const allLevels: readonly Level[] = [Level.error, Level.warn, Level.info, Level.debug];
 
 /**
  * A collection of key value pairs that can be attached
@@ -32,15 +23,12 @@ export type Fields = Record<string, unknown>;
 
 /** Represents any logger type that can create logs. */
 export interface Logger {
-  addField(key: string, value: unknown): void;
   addFields(fields: Fields): void;
 
   debug(msg: string, fields?: Fields): void;
   info(msg: string, fields?: Fields): void;
   warn(msg: string, fields?: Fields): void;
   error(msg: string, fields?: Fields): void;
-  fatal(msg: string, fields?: Fields): void;
-  panic(msg: string, fields?: Fields): void;
 }
 
 /**
@@ -71,10 +59,6 @@ export function levelString(level: Level): string {
       return "warn";
     case Level.error:
       return "error";
-    case Level.fatal:
-      return "fatal";
-    case Level.panic:
-      return "panic";
     /* istanbul ignore next */
     default:
       return "unknown";
@@ -92,10 +76,6 @@ export function parseLevel(level: string): Result<Level, error> {
       return Result.success(Level.warn);
     case "error":
       return Result.success(Level.error);
-    case "fatal":
-      return Result.success(Level.fatal);
-    case "panic":
-      return Result.success(Level.panic);
     default:
       return Result.failure(errors.errorString(`not a valid log level: ${level}`));
   }

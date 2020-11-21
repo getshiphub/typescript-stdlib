@@ -2,7 +2,6 @@
 // All rights reserved. MIT License.
 
 import { runtime } from "../_runtime/runtime";
-import { panic } from "../global";
 import { Formatter, TextFormatter } from "./formatter";
 import { Logger, Level, Fields, Log, Writable } from "./log";
 
@@ -47,23 +46,11 @@ export class StandardLogger implements Logger {
 
     const serialized = result.success();
     this.out.write(serialized);
-
-    if (level <= Level.panic) {
-      panic(serialized.toString());
-    }
   };
 
   /** Checks if the given log level is enabled for the logger. */
   isLevelEnabled(level: Level): boolean {
     return this.level >= level;
-  }
-
-  /**
-   * Adds a global field to be included in all logs
-   * created by the logger.
-   */
-  addField(key: string, value: unknown): void {
-    this.#fields[key] = value;
   }
 
   /**
@@ -106,23 +93,6 @@ export class StandardLogger implements Logger {
    */
   error(msg: string, fields?: Fields): void {
     this.#log(Level.error, msg, fields);
-  }
-
-  /**
-   * Writes a log with the given messages and fields
-   * at fatal level and then exits the process.
-   */
-  fatal(msg: string, fields?: Fields): void {
-    this.#log(Level.fatal, msg, fields);
-    runtime.exit(1);
-  }
-
-  /**
-   * Writes a log with the given messages and fields
-   * at panic level and then panics.
-   */
-  panic(msg: string, fields?: Fields): void {
-    this.#log(Level.panic, msg, fields);
   }
 }
 

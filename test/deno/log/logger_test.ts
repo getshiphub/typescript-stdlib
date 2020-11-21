@@ -65,41 +65,6 @@ Deno.test("logger.error", () => {
   testing.assertEquals(b.toString(), `level=error msg="log message"\n`);
 });
 
-// TODO(@cszatmary): figure out how to mock Deno.exit
-// Deno.test("logger.fatal", () => {
-//   let exitCode = 0;
-//   const spyExit = jest.spyOn(runtime, "exit").mockImplementation(((code) => {
-//     exitCode = code as number;
-//   }) as (code?: number) => never);
-
-//   const b = new bytes.DynamicBuffer();
-//   const logger = new log.StandardLogger({
-//     out: b,
-//     formatter: new log.TextFormatter({ disableTimestamp: true }),
-//     level: log.Level.fatal,
-//   });
-//   logger.fatal("log message");
-
-//   testing.assertEquals(b.toString(), `level=fatal msg="log message"\n`);
-//   testing.assertEquals(exitCode, 1);
-//   spyExit.mockRestore();
-// });
-
-Deno.test("logger.panic", () => {
-  const b = new bytes.DynamicBuffer();
-  const logger = new log.StandardLogger({
-    out: b,
-    formatter: new log.TextFormatter({ disableTimestamp: true }),
-    level: log.Level.panic,
-  });
-
-  testing.assertPanics(() => {
-    logger.panic("log message");
-  });
-
-  testing.assertEquals(b.toString(), `level=panic msg="log message"\n`);
-});
-
 Deno.test("no log", () => {
   const b = new bytes.DynamicBuffer();
   const logger = new log.StandardLogger({
@@ -120,19 +85,6 @@ Deno.test("log with fields", () => {
     level: log.Level.info,
   });
   logger.info("log message", { foo: "bar", baz: 1 });
-
-  testing.assertEquals(b.toString(), `level=info msg="log message" baz=1 foo=bar\n`);
-});
-
-Deno.test("logger.addField", () => {
-  const b = new bytes.DynamicBuffer();
-  const logger = new log.StandardLogger({
-    out: b,
-    formatter: new log.TextFormatter({ disableTimestamp: true }),
-    level: log.Level.info,
-  });
-  logger.addField("foo", "bar");
-  logger.info("log message", { baz: 1 });
 
   testing.assertEquals(b.toString(), `level=info msg="log message" baz=1 foo=bar\n`);
 });

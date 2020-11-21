@@ -1,4 +1,3 @@
-import { runtime } from "../../../src/_runtime/runtime";
 import { bytes, log } from "../../../src";
 
 describe("log/logger.ts", () => {
@@ -66,40 +65,6 @@ describe("log/logger.ts", () => {
     expect(b.toString()).toBe(`level=error msg="log message"\n`);
   });
 
-  test("logger.fatal", () => {
-    let exitCode = 0;
-    const spyExit = jest.spyOn(runtime, "exit").mockImplementation(((code) => {
-      exitCode = code as number;
-    }) as (code?: number) => never);
-
-    const b = new bytes.DynamicBuffer();
-    const logger = new log.StandardLogger({
-      out: b,
-      formatter: new log.TextFormatter({ disableTimestamp: true }),
-      level: log.Level.fatal,
-    });
-    logger.fatal("log message");
-
-    expect(b.toString()).toBe(`level=fatal msg="log message"\n`);
-    expect(exitCode).toBe(1);
-    spyExit.mockRestore();
-  });
-
-  test("logger.panic", () => {
-    const b = new bytes.DynamicBuffer();
-    const logger = new log.StandardLogger({
-      out: b,
-      formatter: new log.TextFormatter({ disableTimestamp: true }),
-      level: log.Level.panic,
-    });
-
-    expect(() => {
-      logger.panic("log message");
-    }).toPanic();
-
-    expect(b.toString()).toBe(`level=panic msg="log message"\n`);
-  });
-
   test("no log", () => {
     const b = new bytes.DynamicBuffer();
     const logger = new log.StandardLogger({
@@ -120,19 +85,6 @@ describe("log/logger.ts", () => {
       level: log.Level.info,
     });
     logger.info("log message", { foo: "bar", baz: 1 });
-
-    expect(b.toString()).toBe(`level=info msg="log message" baz=1 foo=bar\n`);
-  });
-
-  test("logger.addField", () => {
-    const b = new bytes.DynamicBuffer();
-    const logger = new log.StandardLogger({
-      out: b,
-      formatter: new log.TextFormatter({ disableTimestamp: true }),
-      level: log.Level.info,
-    });
-    logger.addField("foo", "bar");
-    logger.info("log message", { baz: 1 });
 
     expect(b.toString()).toBe(`level=info msg="log message" baz=1 foo=bar\n`);
   });
