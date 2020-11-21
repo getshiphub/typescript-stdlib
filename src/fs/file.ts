@@ -4,7 +4,7 @@
 import { Result } from "../global";
 import * as util from "../util/mod";
 import * as fs from "./fs";
-import { rimraf, rimrafSync } from "./rm";
+import { rimraf, rimrafSync } from "./_rm";
 
 /** Asynchronously checks if the given path exists. */
 export async function fileExists(path: fs.PathLike): Promise<boolean> {
