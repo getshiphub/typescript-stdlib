@@ -2,7 +2,7 @@
 
 This document describes the styleguide conventions of the `typescript-stdlib` repo.
 
-This is heavily inspired by the [deno style guide](https://deno.land/std/style_guide.md) and a lot of the rules are taken from there.
+This is heavily inspired by the [deno style guide](https://deno.land/manual/contributing/style_guide) and a lot of the rules are taken from there.
 
 ## Keep filenames short and descriptive.
 
@@ -41,6 +41,13 @@ This will serve as the module's entrypoint and should re-export all exports from
 
 No `index.ts` files should exist except for `src/index.ts`. Instead `mod.ts` should be used as described above.
 This is to avoid the magicalness of `index.ts` and to make it easier to support deno.
+
+## If a file or directory starts with an underscore it is internal.
+
+Internal files are only supposed to be used within the same module. They should not be imported from another module.
+They must not be exported from the module's `mod.ts` file.
+
+If a directory starts with an underscore it is internal to the whole library. However, it must not be exported from `index.ts`.
 
 ## Put global cross cutting functionality in `src/global.ts`.
 
@@ -134,18 +141,18 @@ In the event where something truly exceptional happens the `panic` function shou
 
 `Error` implies `throw` and `try/catch` which should be avoided as described above.
 
-### Prefer top level functions over static methods.
+## Prefer top level functions over static methods.
 
 JavaScript allows top level functions therefore, static methods aren't as important as they are in languages that don't have top level functions.
 In most cases it is better to have a top level method that is exported by a module, then to have a static method.
 
 If static methods are required to scope functionality in a module, it might be a red flag that the functionality should be extracted into its own module.
 
-### Top level functions should not use array syntax.
+## Top level functions should not use array syntax.
 
 Always use the `function` keyword for top level syntax. Arrow functions should be limited to closures and anonymous functions.
 
-### Document exports with JSDoc.
+## Document exports with JSDoc.
 
 Every exported value should be well document. The documentation should be concise but explicit.
 
@@ -158,7 +165,7 @@ If the arguments or return values are not obvious, it is likely a red flag that 
 An occasional exception to this rule is arguments that have default values.
 It can be useful to use `@param` to document what the default value is and how this affects the function.
 
-### Follow Go best practices.
+## Follow Go best practices.
 
 This standard library is heavily inspired by Go's standard library. It also uses a lot of Go's best practices.
 When in doubt, follow Go conventions.

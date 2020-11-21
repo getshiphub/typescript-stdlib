@@ -12,6 +12,8 @@ This library is primarily intended for use with Node.js. However, large parts of
 
 ## Usage
 
+**Disclaimer:** This library is not yet stable. This means minor versions will likely have breaking changes. We recommend pinning a patch version which will not contain breaking changes.
+
 ### Node.js
 
 Install the package using npm:
@@ -31,7 +33,12 @@ import { Result, errors } from "typescript-stdlib";
 
 ### Deno
 
-Coming soon.
+Currently the deno version can be grabbed directly from GitHub. For each release a `deno/<VERSION>` tag is created.
+
+This can be used like so:
+```ts
+import { Result, errors } from "https://raw.githubusercontent.com/getshiphub/typescript-stdlib/deno/0.1.0/mod.ts"
+```
 
 ## Why was this created?
 
