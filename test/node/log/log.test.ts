@@ -6,8 +6,6 @@ describe("log/log.ts", () => {
     [log.Level.info, "info"],
     [log.Level.warn, "warn"],
     [log.Level.error, "error"],
-    [log.Level.fatal, "fatal"],
-    [log.Level.panic, "panic"],
   ])("log.levelString: %d, %s", (level, expected) => {
     expect(log.levelString(level)).toBe(expected);
   });
@@ -17,8 +15,6 @@ describe("log/log.ts", () => {
     ["info", log.Level.info],
     ["warn", log.Level.warn],
     ["error", log.Level.error],
-    ["fatal", log.Level.fatal],
-    ["panic", log.Level.panic],
   ])("log.parseLevel: %s", (str, expectedLevel) => {
     expect(log.parseLevel(str).unwrap()).toBe(expectedLevel);
   });

@@ -55,6 +55,7 @@ function prefixFieldClashes(data: Fields, fieldMap: Map<string, string>): void {
 
 /** A `Formatter` that formats logs as `JSON`. */
 export class JSONFormatter implements Formatter {
+  #textEncoder = new TextEncoder();
   disableTimestamp: boolean;
   /** Allows for putting the log fields into a nested dictionary using this key. */
   dataKey: string;
@@ -112,7 +113,7 @@ export class JSONFormatter implements Formatter {
     }
 
     return Result.of(() => JSON.stringify(data, null, indent))
-      .map((json) => new TextEncoder().encode(json))
+      .map((json) => this.#textEncoder.encode(json))
       .mapFailure((err) => errors.fromJSError(err));
   }
 }
@@ -268,8 +269,6 @@ export class TextFormatter implements Formatter {
         colorFn = colors.yellow;
         break;
       case Level.error:
-      case Level.fatal:
-      case Level.panic:
         colorFn = colors.red;
         break;
       default:

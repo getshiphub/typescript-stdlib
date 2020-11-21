@@ -7,8 +7,6 @@ Deno.test("log.levelString", () => {
     [log.Level.info, "info"],
     [log.Level.warn, "warn"],
     [log.Level.error, "error"],
-    [log.Level.fatal, "fatal"],
-    [log.Level.panic, "panic"],
   ];
 
   for (const [level, expected] of tests) {
@@ -22,8 +20,6 @@ Deno.test("log.levelString", () => {
     ["info", log.Level.info],
     ["warn", log.Level.warn],
     ["error", log.Level.error],
-    ["fatal", log.Level.fatal],
-    ["panic", log.Level.panic],
   ];
 
   for (const [str, expected] of tests) {
