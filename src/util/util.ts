@@ -99,7 +99,12 @@ export function copy<T>(v: T): T {
   // Arrays are special and should be handled before checking
   // it's an object
   if (Array.isArray(v)) {
-    return (v.map((e) => copy(e)) as unknown) as T;
+    const a = [];
+    for (const e of v) {
+      a.push(copy(e));
+    }
+
+    return (a as unknown) as T;
   }
 
   // Handle primatives
