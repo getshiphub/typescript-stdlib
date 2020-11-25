@@ -1,5 +1,5 @@
 import * as testing from "../testing.ts";
-import { symbols, bytes, hex, util } from "../../../dist/deno/mod.ts";
+import { bytes, hex, io, util } from "../../../dist/deno/mod.ts";
 
 Deno.test("bytes.DynamicBuffer: empty", () => {
   const buf = new bytes.DynamicBuffer();
@@ -86,17 +86,35 @@ Deno.test("bytes.DynamicBuffer: grow: n is negative", () => {
   }, "DynamicBuffer.grow: negative count");
 });
 
-Deno.test("bytes.DynamicBuffer: write", () => {
+Deno.test("bytes.DynamicBuffer: writeSync", () => {
   const src = hex.decodeString("10ffab23ef5d").unwrap();
   const buf = new bytes.DynamicBuffer(src);
-  buf.write(new Uint8Array([0x10, 0xff, 0xab]));
+  const result = buf.writeSync(new Uint8Array([0x10, 0xff, 0xab]));
+  testing.assertEquals(result.unwrap(), 3);
   testing.assertEquals(buf.length, 9);
   testing.assertEquals(hex.encodeToString(buf.bytes()), "10ffab23ef5d10ffab");
 });
 
-Deno.test("bytes.DynamicBuffer: writeString", () => {
+Deno.test("bytes.DynamicBuffer: write", async () => {
+  const src = hex.decodeString("10ffab23ef5d").unwrap();
+  const buf = new bytes.DynamicBuffer(src);
+  const result = await buf.write(new Uint8Array([0x10, 0xff, 0xab]));
+  testing.assertEquals(result.unwrap(), 3);
+  testing.assertEquals(buf.length, 9);
+  testing.assertEquals(hex.encodeToString(buf.bytes()), "10ffab23ef5d10ffab");
+});
+
+Deno.test("bytes.DynamicBuffer: writeStringSync", () => {
   const buf = new bytes.DynamicBuffer("Hello");
-  buf.writeString(" world!");
+  const result = buf.writeStringSync(" world!");
+  testing.assertEquals(result.unwrap(), 7);
+  testing.assertEquals(buf.toString(), "Hello world!");
+});
+
+Deno.test("bytes.DynamicBuffer: writeString", async () => {
+  const buf = new bytes.DynamicBuffer("Hello");
+  const result = await buf.writeString(" world!");
+  testing.assertEquals(result.unwrap(), 7);
   testing.assertEquals(buf.toString(), "Hello world!");
 });
 
@@ -116,31 +134,58 @@ Deno.test("bytes.DynamicBuffer: writeByte: invalid byte", () => {
   }, "DynamicBuffer.writeByte: c is not a valid byte");
 });
 
-Deno.test("bytes.DynamicBuffer: read", () => {
+Deno.test("bytes.DynamicBuffer: readSync", () => {
   const src = hex.decodeString("10ffab23ef5d").unwrap();
   const buf = new bytes.DynamicBuffer(src);
   const b = new Uint8Array(4);
-  const r = buf.read(b);
-  testing.assertEquals(r.unwrap(), 4);
+  const result = buf.readSync(b);
+  testing.assertEquals(result.unwrap(), 4);
   testing.assertEquals(hex.encodeToString(b), "10ffab23");
   testing.assertEquals(buf.length, 2);
 });
 
-Deno.test("bytes.DynamicBuffer: read: all the bytes", () => {
+Deno.test("bytes.DynamicBuffer: read", async () => {
+  const src = hex.decodeString("10ffab23ef5d").unwrap();
+  const buf = new bytes.DynamicBuffer(src);
+  const b = new Uint8Array(4);
+  const result = await buf.read(b);
+  testing.assertEquals(result.unwrap(), 4);
+  testing.assertEquals(hex.encodeToString(b), "10ffab23");
+  testing.assertEquals(buf.length, 2);
+});
+
+Deno.test("bytes.DynamicBuffer: readSync: all the bytes", () => {
   const src = hex.decodeString("10ffab23ef5d").unwrap();
   const buf = new bytes.DynamicBuffer(src);
   const b = new Uint8Array(10);
-  const r = buf.read(b);
-  testing.assertEquals(r.unwrap(), 6);
+  const result = buf.readSync(b);
+  testing.assertEquals(result.unwrap(), 6);
   testing.assertEquals(hex.encodeToString(b), "10ffab23ef5d00000000");
   testing.assertEquals(buf.length, 0);
 });
 
-Deno.test("bytes.DynamicBuffer: read: empty", () => {
+Deno.test("bytes.DynamicBuffer: read: all the bytes", async () => {
+  const src = hex.decodeString("10ffab23ef5d").unwrap();
+  const buf = new bytes.DynamicBuffer(src);
+  const b = new Uint8Array(10);
+  const result = await buf.read(b);
+  testing.assertEquals(result.unwrap(), 6);
+  testing.assertEquals(hex.encodeToString(b), "10ffab23ef5d00000000");
+  testing.assertEquals(buf.length, 0);
+});
+
+Deno.test("bytes.DynamicBuffer: readSync: empty", () => {
   const buf = new bytes.DynamicBuffer();
   const b = new Uint8Array(10);
-  const r = buf.read(b);
-  testing.assertEquals(r.unwrapFailure(), bytes.eof);
+  const result = buf.readSync(b);
+  testing.assertEquals(result.unwrapFailure(), io.eof);
+});
+
+Deno.test("bytes.DynamicBuffer: read: empty", async () => {
+  const buf = new bytes.DynamicBuffer();
+  const b = new Uint8Array(10);
+  const result = await buf.read(b);
+  testing.assertEquals(result.unwrapFailure(), io.eof);
 });
 
 Deno.test("bytes.DynamicBuffer: next", () => {
@@ -172,7 +217,7 @@ Deno.test("bytes.DynamicBuffer: readByte", () => {
 Deno.test("bytes.DynamicBuffer: readByte: empty", () => {
   const buf = new bytes.DynamicBuffer();
   const r = buf.readByte();
-  testing.assertEquals(r.unwrapFailure(), bytes.eof);
+  testing.assertEquals(r.unwrapFailure(), io.eof);
 });
 
 Deno.test("bytes.DynamicBuffer: readBytes", () => {
@@ -188,7 +233,7 @@ Deno.test("bytes.DynamicBuffer: readBytes: delim doesn't exist", () => {
   const src = hex.decodeString("10ffab23ef5d").unwrap();
   const buf = new bytes.DynamicBuffer(src);
   const [b, err] = buf.readBytes(0xcc);
-  testing.assertEquals(err, bytes.eof);
+  testing.assertEquals(err, io.eof);
   testing.assertEquals(hex.encodeToString(b), "10ffab23ef5d");
   testing.assertEquals(buf.length, 0);
 });

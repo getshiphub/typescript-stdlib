@@ -1,5 +1,5 @@
 import { inspect } from "util";
-import { bytes, hex, util } from "../../../src";
+import { bytes, hex, io, util } from "../../../src";
 
 describe("bytes/dynamic_buffer.ts", () => {
   test("bytes.DynamicBuffer: empty", () => {
@@ -87,17 +87,35 @@ describe("bytes/dynamic_buffer.ts", () => {
     }).toPanic("DynamicBuffer.grow: negative count");
   });
 
-  test("bytes.DynamicBuffer: write", () => {
+  test("bytes.DynamicBuffer: writeSync", () => {
     const src = hex.decodeString("10ffab23ef5d").unwrap();
     const buf = new bytes.DynamicBuffer(src);
-    buf.write(new Uint8Array([0x10, 0xff, 0xab]));
+    const result = buf.writeSync(new Uint8Array([0x10, 0xff, 0xab]));
+    expect(result.unwrap()).toBe(3);
     expect(buf.length).toBe(9);
     expect(hex.encodeToString(buf.bytes())).toBe("10ffab23ef5d10ffab");
   });
 
-  test("bytes.DynamicBuffer: writeString", () => {
+  test("bytes.DynamicBuffer: write", async () => {
+    const src = hex.decodeString("10ffab23ef5d").unwrap();
+    const buf = new bytes.DynamicBuffer(src);
+    const result = await buf.write(new Uint8Array([0x10, 0xff, 0xab]));
+    expect(result.unwrap()).toBe(3);
+    expect(buf.length).toBe(9);
+    expect(hex.encodeToString(buf.bytes())).toBe("10ffab23ef5d10ffab");
+  });
+
+  test("bytes.DynamicBuffer: writeStringSync", () => {
     const buf = new bytes.DynamicBuffer("Hello");
-    buf.writeString(" world!");
+    const result = buf.writeStringSync(" world!");
+    expect(result.unwrap()).toBe(7);
+    expect(buf.toString()).toBe("Hello world!");
+  });
+
+  test("bytes.DynamicBuffer: writeString", async () => {
+    const buf = new bytes.DynamicBuffer("Hello");
+    const result = await buf.writeString(" world!");
+    expect(result.unwrap()).toBe(7);
     expect(buf.toString()).toBe("Hello world!");
   });
 
@@ -117,31 +135,58 @@ describe("bytes/dynamic_buffer.ts", () => {
     }).toPanic("DynamicBuffer.writeByte: c is not a valid byte");
   });
 
-  test("bytes.DynamicBuffer: read", () => {
+  test("bytes.DynamicBuffer: readSync", () => {
     const src = hex.decodeString("10ffab23ef5d").unwrap();
     const buf = new bytes.DynamicBuffer(src);
     const b = new Uint8Array(4);
-    const r = buf.read(b);
-    expect(r.unwrap()).toBe(4);
+    const result = buf.readSync(b);
+    expect(result.unwrap()).toBe(4);
     expect(hex.encodeToString(b)).toBe("10ffab23");
     expect(buf.length).toBe(2);
   });
 
-  test("bytes.DynamicBuffer: read: all the bytes", () => {
+  test("bytes.DynamicBuffer: read", async () => {
+    const src = hex.decodeString("10ffab23ef5d").unwrap();
+    const buf = new bytes.DynamicBuffer(src);
+    const b = new Uint8Array(4);
+    const result = await buf.read(b);
+    expect(result.unwrap()).toBe(4);
+    expect(hex.encodeToString(b)).toBe("10ffab23");
+    expect(buf.length).toBe(2);
+  });
+
+  test("bytes.DynamicBuffer: readSync: all the bytes", () => {
     const src = hex.decodeString("10ffab23ef5d").unwrap();
     const buf = new bytes.DynamicBuffer(src);
     const b = new Uint8Array(10);
-    const r = buf.read(b);
-    expect(r.unwrap()).toBe(6);
+    const result = buf.readSync(b);
+    expect(result.unwrap()).toBe(6);
     expect(hex.encodeToString(b)).toBe("10ffab23ef5d00000000");
     expect(buf.length).toBe(0);
   });
 
-  test("bytes.DynamicBuffer: read: empty", () => {
+  test("bytes.DynamicBuffer: read: all the bytes", async () => {
+    const src = hex.decodeString("10ffab23ef5d").unwrap();
+    const buf = new bytes.DynamicBuffer(src);
+    const b = new Uint8Array(10);
+    const result = await buf.read(b);
+    expect(result.unwrap()).toBe(6);
+    expect(hex.encodeToString(b)).toBe("10ffab23ef5d00000000");
+    expect(buf.length).toBe(0);
+  });
+
+  test("bytes.DynamicBuffer: readSync: empty", () => {
     const buf = new bytes.DynamicBuffer();
     const b = new Uint8Array(10);
-    const r = buf.read(b);
-    expect(r.unwrapFailure()).toBe(bytes.eof);
+    const result = buf.readSync(b);
+    expect(result.unwrapFailure()).toBe(io.eof);
+  });
+
+  test("bytes.DynamicBuffer: read: empty", async () => {
+    const buf = new bytes.DynamicBuffer();
+    const b = new Uint8Array(10);
+    const result = await buf.read(b);
+    expect(result.unwrapFailure()).toBe(io.eof);
   });
 
   test("bytes.DynamicBuffer: next", () => {
@@ -173,7 +218,7 @@ describe("bytes/dynamic_buffer.ts", () => {
   test("bytes.DynamicBuffer: readByte: empty", () => {
     const buf = new bytes.DynamicBuffer();
     const r = buf.readByte();
-    expect(r.unwrapFailure()).toBe(bytes.eof);
+    expect(r.unwrapFailure()).toBe(io.eof);
   });
 
   test("bytes.DynamicBuffer: readBytes", () => {
@@ -189,7 +234,7 @@ describe("bytes/dynamic_buffer.ts", () => {
     const src = hex.decodeString("10ffab23ef5d").unwrap();
     const buf = new bytes.DynamicBuffer(src);
     const [b, err] = buf.readBytes(0xcc);
-    expect(err).toBe(bytes.eof);
+    expect(err).toBe(io.eof);
     expect(hex.encodeToString(b)).toBe("10ffab23ef5d");
     expect(buf.length).toBe(0);
   });

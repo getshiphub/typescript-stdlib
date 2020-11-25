@@ -28,6 +28,7 @@
     "fs": "node",
     "hex": "*",
     "http": "node",
+    "io": "*",
     "log": "*",
     "sets": "*",
     "strconv": "*",

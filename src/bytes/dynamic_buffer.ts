@@ -7,13 +7,11 @@
 
 import { runtime } from "../_runtime/runtime";
 import { Result, panic, symbols } from "../global";
-import * as errors from "../errors/mod";
+import * as io from "../io/mod";
 import { copy } from "./bytes";
 
 // Node limit for the size of ArrayBuffers
 const maxSize = 2 ** 31 - 1;
-
-export const eof = errors.errorString("EOF");
 
 function isByte(c: number): boolean {
   return Number.isInteger(c) && c >= 0 && c < 256;
@@ -26,6 +24,8 @@ function isByte(c: number): boolean {
 export class DynamicBuffer implements Iterable<number> {
   #buf: Uint8Array; // contents are the bytes #buf[#off : #buf.byteLength]
   #off = 0; // read at #buf[#off], write at #buf[#buf.byteLength]
+  #enc = new TextEncoder();
+  #dec = new TextDecoder("utf-8");
 
   /** Creates an empty DynamicBuffer ready for use. */
   constructor();
@@ -55,7 +55,7 @@ export class DynamicBuffer implements Iterable<number> {
     }
 
     if (typeof src === "string") {
-      this.#buf = new TextEncoder().encode(src);
+      this.#buf = this.#enc.encode(src);
       return;
     }
 
@@ -135,7 +135,7 @@ export class DynamicBuffer implements Iterable<number> {
     let err: error | undefined;
     if (i < 0) {
       end = this.#buf.byteLength;
-      err = eof;
+      err = io.eof;
     }
 
     const line = this.#buf.subarray(this.#off, end);
@@ -171,7 +171,7 @@ export class DynamicBuffer implements Iterable<number> {
 
   /** Returns the contents of the unread portion of the buffer as a string. */
   toString(): string {
-    return new TextDecoder("utf-8").decode(this.#buf.subarray(this.#off));
+    return this.#dec.decode(this.#buf.subarray(this.#off));
   }
 
   /**
@@ -219,23 +219,53 @@ export class DynamicBuffer implements Iterable<number> {
 
   /**
    * Appends the contents of `p` to the buffer, growing the buffer as needed.
-   * If the buffer becomes too large, write will panic.
-   * @returns The number of bytes written, i.e. the length of `p`.
+   * The return value is a successful `Result` with the length of `p`,
+   * it will never fail.
+   * If the buffer becomes too large, `writeSync` will panic.
    */
-  write(p: Uint8Array): number {
+  writeSync(p: Uint8Array): Result<number, error> {
     const m = this.#grow(p.byteLength);
-    return copy(this.#buf.subarray(m), p);
+    const n = copy(this.#buf.subarray(m), p);
+    return Result.success(n);
+  }
+
+  /**
+   * Appends the contents of `p` to the buffer, growing the buffer as needed.
+   * The return value resolves to a successful `Result` with the length of `p`,
+   * it will never fail.
+   * If the buffer becomes too large, `write` will panic.
+   *
+   * **NOTE:** Writing happens synchronously. This method is provided
+   * for compatibility with the `io.Writer` interface.
+   */
+  write(p: Uint8Array): Promise<Result<number, error>> {
+    return Promise.resolve(this.writeSync(p));
   }
 
   /**
    * Appends the contents of `s` to the buffer, growing the buffer as needed.
-   * If the buffer becomes too large, writeString will panic.
-   * @returns The number of bytes written, i.e. the byte length of `s`.
+   * The return value is a successful `Result` with the byte length of `s`,
+   * it will never fail.
+   * If the buffer becomes too large, `writeStringSync` will panic.
    */
-  writeString(s: string): number {
-    const p = new TextEncoder().encode(s);
+  writeStringSync(s: string): Result<number, error> {
+    const p = this.#enc.encode(s);
     const m = this.#grow(p.byteLength);
-    return copy(this.#buf.subarray(m), p);
+    const n = copy(this.#buf.subarray(m), p);
+    return Result.success(n);
+  }
+
+  /**
+   * Appends the contents of `s` to the buffer, growing the buffer as needed.
+   * The return value resolves to a successful `Result` with the byte length of `s`,
+   * it will never fail.
+   * If the buffer becomes too large, `writeString` will panic.
+   *
+   * **NOTE:** Writing happens synchronously. This method is provided
+   * for compatibility with the `io.StringWriter` interface.
+   */
+  writeString(s: string): Promise<Result<number, error>> {
+    return Promise.resolve(this.writeStringSync(s));
   }
 
   /**
@@ -254,12 +284,11 @@ export class DynamicBuffer implements Iterable<number> {
 
   /**
    * Reads the next `p.byteLength` bytes from the buffer
-   * or until the buffer is drained.
-   * @param p A buffer to read the data into.
-   * @returns A `Result` with the number of bytes read
-   * or an eof error if the buffer has no data.
+   * or until the buffer is drained. The return value is a
+   * `Result` with either the number of bytes read or `io.eof`
+   * if the buffer has no data.
    */
-  read(p: Uint8Array): Result<number, error> {
+  readSync(p: Uint8Array): Result<number, error> {
     if (this.isEmpty) {
       // Buffer is empty, reset to recover space.
       this.reset();
@@ -267,12 +296,25 @@ export class DynamicBuffer implements Iterable<number> {
         return Result.success(0);
       }
 
-      return Result.failure(eof);
+      return Result.failure(io.eof);
     }
 
     const n = copy(p, this.#buf.subarray(this.#off));
     this.#off += n;
     return Result.success(n);
+  }
+
+  /**
+   * Reads the next `p.byteLength` bytes from the buffer
+   * or until the buffer is drained. The return value is a
+   * `Result` with either the number of bytes read or `io.eof`
+   * if the buffer has no data.
+   *
+   * **NOTE:** Reading happens synchronously. This method is provided
+   * for compatibility with the `io.Reader` interface.
+   */
+  read(p: Uint8Array): Promise<Result<number, error>> {
+    return Promise.resolve(this.readSync(p));
   }
 
   /**
@@ -295,14 +337,14 @@ export class DynamicBuffer implements Iterable<number> {
 
   /**
    * Reads the next byte from the buffer.
-   * @returns A `Result` with the read byte
-   * or an eof error if the buffer has no data.
+   * The return value is a `Result` with the read byte
+   * or an `io.eof` error if the buffer has no data.
    */
   readByte(): Result<number, error> {
     if (this.isEmpty) {
       // Buffer is empty, reset to recover space.
       this.reset();
-      return Result.failure(eof);
+      return Result.failure(io.eof);
     }
 
     const c = this.#buf[this.#off];
@@ -340,7 +382,7 @@ export class DynamicBuffer implements Iterable<number> {
     }
 
     const [slice, err] = this.#readSlice(delim);
-    return [new TextDecoder("utf-8").decode(slice), err];
+    return [this.#dec.decode(slice), err];
   }
 
   /**

@@ -244,18 +244,18 @@ export class TextFormatter implements Formatter {
     }
 
     if (!this.#needsQuoting(str)) {
-      b.writeString(str);
+      b.writeStringSync(str);
     } else {
-      b.writeString(`"${str}"`);
+      b.writeStringSync(`"${str}"`);
     }
   };
 
   #appendKeyValue = (b: bytes.DynamicBuffer, key: string, value: unknown): void => {
     if (b.length > 0) {
-      b.writeString(" ");
+      b.writeStringSync(" ");
     }
 
-    b.writeString(`${key}=`);
+    b.writeStringSync(`${key}=`);
     this.#appendValue(b, value);
   };
 
@@ -291,16 +291,16 @@ export class TextFormatter implements Formatter {
     log.msg = log.msg.replace(/\n$/, "");
 
     if (this.disableTimestamp) {
-      b.writeString(`${colorFn(levelText)} ${log.msg}`);
+      b.writeStringSync(`${colorFn(levelText)} ${log.msg}`);
     } else if (!this.fullTimestamp) {
       const timestamp = Math.floor((log.date.getTime() - baseTimestamp.getTime()) / 1000);
-      b.writeString(`${colorFn(levelText)} [${timestamp}] ${log.msg}`);
+      b.writeStringSync(`${colorFn(levelText)} [${timestamp}] ${log.msg}`);
     } else {
-      b.writeString(`${colorFn(levelText)} [${log.date.toISOString()}] ${log.msg}`);
+      b.writeStringSync(`${colorFn(levelText)} [${log.date.toISOString()}] ${log.msg}`);
     }
 
     for (const k of keys) {
-      b.writeString(` ${colorFn(k)}=`);
+      b.writeStringSync(` ${colorFn(k)}=`);
       this.#appendValue(b, data[k]);
     }
   };
@@ -368,7 +368,7 @@ export class TextFormatter implements Formatter {
       }
     }
 
-    b.writeString("\n");
+    b.writeStringSync("\n");
     return Result.success(b.bytes());
   }
 }
