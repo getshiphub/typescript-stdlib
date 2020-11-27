@@ -110,7 +110,6 @@ Deno.test("io.copy: buf", async () => {
 Deno.test("io.copySync: buf", () => {
   const rb = new bytes.DynamicBuffer("hello, world.");
   const wb = new bytes.DynamicBuffer();
-  // Tiny buffer to keep it honest.
   const result = io.copySync(wb, rb, { buf: new Uint8Array(1) });
   testing.assertEquals(result.unwrap(), 13);
   testing.assertEquals(wb.toString(), "hello, world.");
@@ -128,7 +127,6 @@ Deno.test("io.copy: size", async () => {
 Deno.test("io.copySync: size", () => {
   const rb = new bytes.DynamicBuffer("hello, world.");
   const wb = new bytes.DynamicBuffer();
-  // Tiny buffer to keep it honest.
   const result = io.copySync(wb, rb, { size: 5 });
   testing.assertEquals(result.unwrap(), 5);
   testing.assertEquals(wb.toString(), "hello");

@@ -13,6 +13,7 @@ export * as fs from "./fs/mod";
 export * as hex from "./hex/mod";
 export * as http from "./http/mod";
 export * as io from "./io/mod";
+export * as ionode from "./ionode/mod";
 export * as log from "./log/mod";
 export * as sets from "./sets/mod";
 export * as strconv from "./strconv/mod";

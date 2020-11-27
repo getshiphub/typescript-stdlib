@@ -29,6 +29,7 @@
     "hex": "*",
     "http": "node",
     "io": "*",
+    "ionode": "node",
     "log": "*",
     "sets": "*",
     "strconv": "*",
