@@ -111,7 +111,6 @@ describe("io/io.ts", () => {
   test("io.copy: size", async () => {
     const rb = new bytes.DynamicBuffer("hello, world.");
     const wb = new bytes.DynamicBuffer();
-    // Tiny buffer to keep it honest.
     const result = await io.copy(wb, rb, { size: 5 });
     expect(result.unwrap()).toBe(5);
     expect(wb.toString()).toBe("hello");
@@ -120,7 +119,6 @@ describe("io/io.ts", () => {
   test("io.copySync: size", () => {
     const rb = new bytes.DynamicBuffer("hello, world.");
     const wb = new bytes.DynamicBuffer();
-    // Tiny buffer to keep it honest.
     const result = io.copySync(wb, rb, { size: 5 });
     expect(result.unwrap()).toBe(5);
     expect(wb.toString()).toBe("hello");

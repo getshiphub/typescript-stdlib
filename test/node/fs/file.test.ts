@@ -20,7 +20,7 @@ describe("fs/file.ts", () => {
   let tmpDir: string;
 
   beforeEach(async () => {
-    const r = await fs.mkdtemp(`${os.tmpdir}${path.sep}`);
+    const r = await fs.mkdtemp(`${os.tmpdir()}${path.sep}`);
     tmpDir = r.unwrap();
   });
 
@@ -111,6 +111,14 @@ describe("fs/file.ts", () => {
     expect(fs.fileExistsSync(p)).toBe(false);
   });
 
+  test("fs.removeAll: file", async () => {
+    const p = path.join(tmpDir, "foo.ts");
+    fs.writeFileSync(p, "const n = 1;").unwrap();
+    const r = await fs.removeAll(p);
+    expect(r).toBeSuccess();
+    expect(fs.fileExistsSync(p)).toBe(false);
+  });
+
   test("fs.removeAll: does not exist", async () => {
     const p = path.join(tmpDir, "foo");
     const r = await fs.removeAll(p);
@@ -119,6 +127,14 @@ describe("fs/file.ts", () => {
 
   test("fs.removeAllSync", () => {
     const p = createFixture(tmpDir);
+    const r = fs.removeAllSync(p);
+    expect(r).toBeSuccess();
+    expect(fs.fileExistsSync(p)).toBe(false);
+  });
+
+  test("fs.removeAllSync: file", () => {
+    const p = path.join(tmpDir, "foo.ts");
+    fs.writeFileSync(p, "const n = 1;").unwrap();
     const r = fs.removeAllSync(p);
     expect(r).toBeSuccess();
     expect(fs.fileExistsSync(p)).toBe(false);
