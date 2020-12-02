@@ -1,16 +1,19 @@
 // Copyright (c) 2020 Christopher Szatmary <cs@christopherszatmary.com>
 // All rights reserved. MIT License.
 
-import { runtime } from "../_runtime/runtime";
+import * as io from "../io/mod";
 import { Formatter, TextFormatter } from "./formatter";
-import { Logger, Level, Fields, Log, Writable } from "./log";
+import { Logger, Level, Fields, Log } from "./log";
 
-/** A basic logger that writes logs to a `Writable` object. */
+/** A basic logger that writes logs to an `io.WriterSync`. */
 export class StandardLogger implements Logger {
   #fields: Fields = {};
-  /** A `Writable` object to write the logs to. */
-  out: Writable;
-  /** The Formatter used to format logs. */
+  /** Logs are written to out synchronously. Defaults to `io.stderr` if not set. */
+  out: io.WriterSync;
+  /**
+   * The `Formatter` used to format logs. All logs are passed
+   * through the formatter before logged to `out`.
+   */
   formatter: Formatter;
   /**
    * The minimum level to log at. Logs greater than and equal
@@ -18,8 +21,8 @@ export class StandardLogger implements Logger {
    */
   level: Level;
 
-  constructor(opts?: { out?: Writable; formatter?: Formatter; level?: Level }) {
-    this.out = opts?.out ?? runtime.stderr;
+  constructor(opts?: { out?: io.WriterSync; formatter?: Formatter; level?: Level }) {
+    this.out = opts?.out ?? io.stderr;
     this.formatter = opts?.formatter ?? new TextFormatter();
     this.level = opts?.level ?? Level.info;
   }
@@ -45,7 +48,10 @@ export class StandardLogger implements Logger {
     }
 
     const serialized = result.success();
-    this.out.write(serialized);
+    const writeResult = this.out.writeSync(serialized);
+    if (writeResult.isFailure()) {
+      console.error(`Failed to write log: ${writeResult.failure().error()}`);
+    }
   };
 
   /** Checks if the given log level is enabled for the logger. */

@@ -3,6 +3,7 @@
 
 import { Result } from "../global";
 import * as errors from "../errors/mod";
+import * as io from "../io/mod";
 
 /** The available log levels for a logger. */
 export enum Level {
@@ -31,21 +32,13 @@ export interface Logger {
   error(msg: string, fields?: Fields): void;
 }
 
-/**
- * Represents a type that can be written to.
- * Generally implemented by a Stream or Buffer.
- */
-export interface Writable {
-  write(buffer: Uint8Array): void;
-}
-
 /** Represents a log created by a logger. */
 export interface Log {
   data: Fields;
   date: Date;
   level: Level;
   msg: string;
-  out?: Writable;
+  out?: io.WriterSync;
 }
 
 /** Returns a string representation of the given log level. */
