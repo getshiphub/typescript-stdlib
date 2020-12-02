@@ -9,12 +9,6 @@ In places where the type checker cannot infer the types properly they must be ex
 
 These scripts must not import the standard library. This is to prevent a chicken or the egg situtation where the library must be built to run the scripts but the scripts must be run to build the library. Dev dependencies can be imported and used.
 
-### `check_deno_runtime`
-
-This script checks that `_runtime/runtime_deno.ts` has no type errors, i.e. it implements the `Runtime` interface properly.
-
-It does this by first running `deno types` and saving the output to `_runtime/deno.d.ts`. It will then run the TypeScript type checker against `_runtime/runtime_deno.ts` and report any type errors.
-
 ### `deno_release`
 
 This script creates a new release of the deno version of the library on GitHub.
@@ -28,6 +22,7 @@ node scripts/deno_release prepare <VERSION>
 ```
 
 This will do the following:
+
 1. Cloning the `deno-latest` branch of the repo to `.deno-release`.
 2. Copy `dist/deno` to `.deno-release`.
 3. Commit the changes.
@@ -51,6 +46,7 @@ This script is responsible for building the library for a given target. Targets 
 
 The scripts takes one argument which is the target to build.
 Ex:
+
 ```
 node scripts/target_generator.js deno
 ```

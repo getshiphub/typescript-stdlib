@@ -8,5 +8,5 @@
     "noEmit": false
   },
   "include": ["src"],
-  "exclude": ["node_modules", "**/*_deno.ts"]
+  "exclude": ["node_modules", "src/_runtime/deno.d.ts", "**/*_deno.ts"]
 }

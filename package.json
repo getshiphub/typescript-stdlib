@@ -32,8 +32,7 @@
     "build:deno": "node scripts/target_generator.js deno",
     "build:node": "node scripts/target_generator.js node",
     "build": "yarn build:deno && yarn build:node",
-    "check-types:deno": "node scripts/check_deno_runtime.js",
-    "check-types": "tsc && yarn check-types:deno",
+    "check-types": "tsc",
     "clean": "rimraf dist && rimraf coverage && rimraf .deno-release",
     "deno-release": "node scripts/deno_release.js",
     "e2e:deno": "deno run e2e/smoke_deno.ts",
@@ -45,14 +44,15 @@
     "lint:node:fix": "eslint --fix --ext=js,ts .",
     "lint": "yarn lint:deno && yarn lint:node",
     "lint:fix": "yarn lint:node",
-    "prepare-release": "yarn clean && yarn build && yarn verify",
+    "postinstall": "deno types > ./src/_runtime/deno.d.ts",
+    "prepare-release": "yarn build && yarn verify",
     "release": "release-it --only-version",
     "test:deno": "deno test --allow-env --allow-read --allow-run test/deno/",
     "test:node": "NODE_ENV=test jest --coverage",
     "test:node:ci": "NODE_ENV=test jest --coverage --runInBand --colors",
     "test:node:nocover": "NODE_ENV=test jest",
     "test": "yarn test:deno && yarn test:node",
-    "verify": "yarn ensure-no-deps && yarn lint && yarn check-types:deno && yarn test && yarn e2e"
+    "verify": "yarn ensure-no-deps && yarn lint && yarn check-types && yarn test && yarn e2e"
   },
   "devDependencies": {
     "@shiphub/eslint-config": "^0.0.3",
