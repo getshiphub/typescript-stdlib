@@ -2,6 +2,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "js"],
   moduleNameMapper: {
     runtime$: "<rootDir>/src/_runtime/runtime_node.ts",
+    stdio$: "<rootDir>/src/io/stdio_node.ts",
   },
   transform: {
     "^.+\\.tsx?$": "ts-jest",

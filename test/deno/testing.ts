@@ -44,6 +44,7 @@ export function assertPanics<T = void>(fn: () => T, msgIncludes = "", msg = ""):
 
 export interface SubprocessTestResult {
   code: number;
+  stdoutData: bytes.DynamicBuffer;
   stderrData: bytes.DynamicBuffer;
 }
 
@@ -69,15 +70,18 @@ export async function runSubprocessTest(
       ...Deno.env.toObject(),
       ...env,
     },
+    stdout: "piped",
     stderr: "piped",
   });
 
   const { code } = await p.status();
+  const stdoutData = await p.output();
   const stderrData = await p.stderrOutput();
   p.close();
 
   return {
     code,
+    stdoutData: new bytes.DynamicBuffer(stdoutData),
     stderrData: new bytes.DynamicBuffer(stderrData),
   };
 }
