@@ -11,5 +11,5 @@
     "noEmit": true
   },
   "include": ["scripts", "src", "test/node"],
-  "exclude": ["node_modules", "dist", "**/*_deno.ts"]
+  "exclude": ["node_modules", "dist"]
 }

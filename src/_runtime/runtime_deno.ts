@@ -6,12 +6,11 @@
 // has been designed such that the Deno namespace can be inlined directly.
 // The file merely exists as a way to check that the Runtime interface is satisfied.
 
-/// <reference types="./deno" />
-
 import type { Runtime } from "./runtime";
 
 interface DenoRuntime extends Runtime {
   // TS doesn't like assigning a unique symbol
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly customInspect: any;
 }
 

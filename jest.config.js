@@ -10,6 +10,6 @@ module.exports = {
   testPathIgnorePatterns: ["/test/deno/"],
   testEnvironment: "node",
   collectCoverageFrom: ["src/**/*.(js|ts)"],
-  coveragePathIgnorePatterns: ["<rootDir>/src/_runtime"],
+  coveragePathIgnorePatterns: ["<rootDir>/src/_runtime", ".*_deno\\.ts", ".*\\.d\\.ts"],
   setupFilesAfterEnv: ["<rootDir>/test/node/setup.ts"],
 };

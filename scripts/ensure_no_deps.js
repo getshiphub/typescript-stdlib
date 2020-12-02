@@ -28,5 +28,5 @@ for (const d of depNames) {
   console.error(` - ${d}`);
 }
 
-console.error("\nts-stdlib is not allowed to have dependencies, please remove these");
+console.error("\ntypescript-stdlib is not allowed to have dependencies, please remove these");
 process.exit(1);

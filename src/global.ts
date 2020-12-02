@@ -164,10 +164,10 @@ export class Ref<T> {
 // that Success and Failure both implement the same methods
 
 interface ResultCase<S, F> {
-  /** Returns `true` if the a `Success`. */
+  /** Returns `true` if the result is a `Success`. */
   isSuccess(): this is Success<S, F>;
 
-  /** Returns `true` if the a `Failure`. */
+  /** Returns `true` if the result is a `Failure`. */
   isFailure(): this is Failure<S, F>;
 
   /**
