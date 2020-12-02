@@ -5,8 +5,6 @@ import { Result } from "../global";
 import * as errors from "../errors/mod";
 import * as io from "../io/mod";
 
-export const errStreamClosed = errors.errorString("ionode: stream closed");
-
 export interface ReadableStream extends NodeJS.ReadableStream {
   readonly readableEncoding?: BufferEncoding | null;
   readonly readableEnded?: boolean;
@@ -155,7 +153,7 @@ export class StreamWriter {
 
       if (this.#isClosed || isWritableStreamClosed(this.#stream)) {
         this.#isClosed = true;
-        resolve(Result.failure(errStreamClosed));
+        resolve(Result.failure(io.errClosed));
         return;
       }
 

@@ -151,7 +151,7 @@ describe("ionode/stream.ts", () => {
     await w.end();
     const res = await w.write(new Uint8Array([0x32, 0x33, 0x34]));
 
-    expect(res.unwrapFailure()).toBe(ionode.errStreamClosed);
+    expect(res.unwrapFailure()).toBe(io.errClosed);
     expect(chunks).toEqual([]);
   });
 
@@ -166,7 +166,7 @@ describe("ionode/stream.ts", () => {
     mockStream.end();
     const res = await w.write(new Uint8Array([0x32, 0x33, 0x34]));
 
-    expect(res.unwrapFailure()).toBe(ionode.errStreamClosed);
+    expect(res.unwrapFailure()).toBe(io.errClosed);
     expect(chunks).toEqual([]);
   });
 

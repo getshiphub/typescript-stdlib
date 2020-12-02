@@ -29,6 +29,12 @@ export const eof = errors.errorString("EOF");
  */
 export const errUnexpectedEOF = errors.errorString("unexpected EOF");
 
+/**
+ * errClosed is the error used when the underlying resource being read from
+ * or written to has been closed.
+ */
+export const errClosed = errors.errorString("io: read/write on closed resource");
+
 /* Types */
 
 /**
