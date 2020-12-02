@@ -23,10 +23,6 @@ interface InspectOptions {
   getters?: boolean;
 }
 
-interface Writable {
-  write(buffer: Uint8Array): void;
-}
-
 export interface Runtime {
   readonly build: {
     os: string;
@@ -34,7 +30,6 @@ export interface Runtime {
   readonly customInspect: unique symbol;
   readonly env: Env;
   readonly noColor: boolean;
-  readonly stderr: Writable;
   exit(code?: number): never;
   inspect(value: unknown, options?: InspectOptions): string;
   isatty(rid: number): boolean;

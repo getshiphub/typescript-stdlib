@@ -54,7 +54,7 @@ function prefixFieldClashes(data: Fields, fieldMap: Map<string, string>): void {
 }
 
 /** A `Formatter` that formats logs as `JSON`. */
-export class JSONFormatter implements Formatter {
+export class JSONFormatter {
   #textEncoder = new TextEncoder();
   disableTimestamp: boolean;
   /** Allows for putting the log fields into a nested dictionary using this key. */
@@ -121,7 +121,7 @@ export class JSONFormatter implements Formatter {
 const baseTimestamp = new Date();
 
 /** A `Formatter` that formats logs as text. */
-export class TextFormatter implements Formatter {
+export class TextFormatter {
   #isTerminal = false;
   #initCalled = false;
   #levelTextMaxLength = 0;

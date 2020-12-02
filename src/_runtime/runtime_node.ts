@@ -31,7 +31,6 @@ export const runtime: Runtime = {
   customInspect: inspect.custom as any,
   env,
   noColor: process.env.NO_COLOR !== undefined,
-  stderr: process.stderr,
   exit: process.exit,
   // TS doesn't like the inspect has multiple signatures
   // The interface required is a subset of what inspect offers so this is fine

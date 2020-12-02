@@ -5,8 +5,10 @@
 import { bytes, http, log } from "../../../src";
 
 describe("http/cookie.ts", () => {
+  const logOut = log.std.out;
+
   afterEach(() => {
-    log.std.out = process.stderr;
+    log.std.out = logOut;
   });
 
   test.each([
