@@ -1,11 +1,12 @@
 version: 2.1
 
-cache_key: &cache_key typescript-stdlib-20201114-{{ checksum "yarn.lock" }}
+cache_key: &cache_key typescript-stdlib-20201125-{{ checksum "yarn.lock" }}
 
 jobs:
   lint-build-test:
     docker:
       - image: cszatma/cimg-node:lts
+    working_directory: /mnt/ramdisk
     steps:
       - checkout
       - restore_cache:
@@ -27,8 +28,8 @@ jobs:
           name: Run linter
           command: yarn lint
       - run:
-          name: Check deno runtime types
-          command: yarn check-types:deno
+          name: Check types
+          command: yarn check-types
       - run:
           name: Build library for targets
           command: yarn build
