@@ -18,6 +18,7 @@ export * as log from "./log/mod";
 export * as sets from "./sets/mod";
 export * as strconv from "./strconv/mod";
 export * as strings from "./strings/mod";
+export * as sync from "./sync/mod";
 export * as time from "./time/mod";
 export * as util from "./util/mod";
 export * as uuid from "./uuid/mod";
