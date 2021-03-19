@@ -4,6 +4,7 @@
 // Adapted from https://github.com/nodejs/node/blob/master/lib/internal/fs/rimraf.js
 // Copyright Node.js contributors. All rights reserved.
 
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable no-ternary */
@@ -145,6 +146,7 @@ function _rmchildren(
   path: fs.PathLike,
   callback: (err: NodeJS.ErrnoException | null) => void,
 ): void {
+  // @ts-ignore
   const pathBuf = Buffer.from(path);
 
   fs.readdir(pathBuf, "buffer", (err, files): void => {
@@ -238,6 +240,7 @@ function _rmdirSync(path: fs.PathLike, originalErr?: Error): void {
       // original removal. Windows has a habit of not closing handles promptly
       // when files are deleted, resulting in spurious ENOTEMPTY failures. Work
       // around that issue by retrying on Windows.
+      // @ts-ignore
       const pathBuf = Buffer.from(path);
       fs.readdirSync(pathBuf, "buffer").forEach((child) => {
         const childPath = Buffer.concat([pathBuf, Buffer.from(sep), child]);
