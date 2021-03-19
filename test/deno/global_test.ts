@@ -1,5 +1,5 @@
 import * as testing from "./testing.ts";
-import { Ref, Result, errors, panic, recover, util } from "../../dist/deno/mod.ts";
+import { Ref, Result, errors, panic, recover, time, util } from "../../dist/deno/mod.ts";
 
 Deno.test("panic", () => {
   const tests: [unknown, string][] = [
@@ -101,6 +101,7 @@ Deno.test("Results.of: Failure", () => {
 
 Deno.test("Result.ofPromise: Success", async () => {
   const r = await Result.ofPromise(async () => {
+    await time.sleep(10);
     return 2;
   });
   testing.assert(r.isSuccess());
@@ -108,6 +109,7 @@ Deno.test("Result.ofPromise: Success", async () => {
 
 Deno.test("Result.ofPromise: Failure", async () => {
   const r = await Result.ofPromise(async () => {
+    await time.sleep(10);
     throw new Error("Oh no!");
   });
   testing.assert(r.isFailure());

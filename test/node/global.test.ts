@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 
 import { inspect } from "util";
-import { Ref, Result, errors, panic, recover, util } from "../../src";
+import { Ref, Result, errors, panic, recover, time, util } from "../../src";
 
 describe("global.ts", () => {
   test.each([
@@ -94,6 +94,7 @@ describe("global.ts", () => {
 
   test("Result.ofPromise: Success", async () => {
     const r = await Result.ofPromise(async () => {
+      await time.sleep(10);
       return 2;
     });
     expect(r).toBeSuccess();
@@ -101,6 +102,7 @@ describe("global.ts", () => {
 
   test("Result.ofPromise: Failure", async () => {
     const r = await Result.ofPromise(async () => {
+      await time.sleep(10);
       throw new Error("Oh no!");
     });
     expect(r).toBeFailure();
