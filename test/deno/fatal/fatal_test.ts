@@ -38,7 +38,10 @@ Deno.test("fatal.exitErr: show detail", async () => {
   );
 
   // Check that the error is printed with a stack trace
-  testing.assertMatch(stderrData.toString(), /Error message\nError: Shoot\n\s+at\sfatal_test\.ts/m);
+  testing.assertMatch(
+    stderrData.toString(),
+    /Error message\nError: Shoot\n\s+at\s.*test\/deno\/fatal\/fatal_test\.ts/m,
+  );
   testing.assertEquals(code, 1);
 });
 
