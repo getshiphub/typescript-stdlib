@@ -22,7 +22,7 @@
     "dist/node/"
   ],
   "engines": {
-    "node": ">= 10.0.0"
+    "node": ">= 12.10.0"
   },
   "publishConfig": {
     "access": "public",
@@ -76,11 +76,7 @@
   "eslintConfig": {
     "extends": [
       "@shiphub"
-    ],
-    "globals": {
-      "Atomics": "readonly",
-      "SharedArrayBuffer": "readonly"
-    }
+    ]
   },
   "husky": {
     "hooks": {
