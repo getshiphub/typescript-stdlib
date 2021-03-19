@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Christopher Szatmary <cs@christopherszatmary.com>
+// Copyright (c) 2020-2021 Christopher Szatmary <cs@christopherszatmary.com>
 // All rights reserved. MIT License.
 
 // This file contains the Deno specific implementation of the runtime API.
