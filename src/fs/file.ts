@@ -1,10 +1,8 @@
-// Copyright (c) 2020 Christopher Szatmary <cs@christopherszatmary.com>
+// Copyright (c) 2020-2021 Christopher Szatmary <cs@christopherszatmary.com>
 // All rights reserved. MIT License.
 
 import { Result } from "../global";
-import * as util from "../util/mod";
 import * as fs from "./fs";
-import { rimraf, rimrafSync } from "./_rm";
 
 /** Asynchronously checks if the given path exists. */
 export async function fileExists(path: fs.PathLike): Promise<boolean> {
@@ -80,25 +78,7 @@ export async function removeAll(path: fs.PathLike): Promise<Result<void, Error>>
     return removeRes;
   }
 
-  // The minimum node version required for native rm support.
-  const rmRequiredVersion = new util.SemVer(12, 10, 0);
-  const nodeVersion = util.SemVer.mustParse(process.versions.node);
-
-  if (nodeVersion.compare(rmRequiredVersion) >= 0) {
-    // We can use the builtin recursive removal
-    return fs.rmdir(path, { recursive: true });
-  }
-
-  // Node version is less than min required, need to use the polyfill
-  return new Promise((resolve) => {
-    rimraf(path, (e) => {
-      if (e != null) {
-        resolve(Result.failure(e));
-      }
-
-      resolve(Result.success(undefined));
-    });
-  });
+  return fs.rmdir(path, { recursive: true });
 }
 
 /**
@@ -122,15 +102,5 @@ export function removeAllSync(path: fs.PathLike): Result<void, Error> {
     return removeRes;
   }
 
-  // The minimum node version required for native rm support.
-  const rmRequiredVersion = new util.SemVer(12, 10, 0);
-  const nodeVersion = util.SemVer.mustParse(process.versions.node);
-
-  if (nodeVersion.compare(rmRequiredVersion) >= 0) {
-    // We can use the builtin recursive removal
-    return fs.rmdirSync(path, { recursive: true });
-  }
-
-  // Node version is less than min required, need to use the polyfill
-  return Result.of(() => rimrafSync(path));
+  return fs.rmdirSync(path, { recursive: true });
 }
