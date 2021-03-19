@@ -125,7 +125,7 @@ Deno.test("errors.wrap: nested errors", () => {
   // Check that the error is printed with a stack trace
   testing.assertMatch(
     err.detailedError(),
-    /^IO Error\nerror reading file\n\s+at\serrors_test\.ts/m,
+    /^IO Error\nerror reading file\n\s+at\s.*test\/deno\/errors\/errors_test\.ts/m,
   );
 });
 

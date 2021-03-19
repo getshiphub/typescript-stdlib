@@ -8,7 +8,7 @@ class MockWriter {
     return this.#buf.bytes();
   }
 
-  async write(p: Uint8Array): Promise<Result<number, error>> {
+  write(p: Uint8Array): Promise<Result<number, error>> {
     return this.#buf.write(p);
   }
 

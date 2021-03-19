@@ -36,8 +36,8 @@ export const close = (fd: number): Promise<Result<void, Error>> =>
     fs.close(fd, (err) => {
       if (err != null) {
         resolve(Result.failure(err));
+        return;
       }
-
       resolve(Result.success(undefined));
     });
   });
@@ -58,7 +58,16 @@ export const fchownSync = resultify(fs.fchownSync);
 export const fdatasync = resultifyPromise(fs.promises.fdatasync);
 export const fdatasyncSync = resultify(fs.fdatasyncSync);
 
-export const fstat = resultifyPromise(fs.promises.fstat);
+export const fstat = (fd: number): Promise<Result<Stats, Error>> =>
+  new Promise((resolve) => {
+    fs.fstat(fd, (err, stats) => {
+      if (err != null) {
+        resolve(Result.failure(err));
+        return;
+      }
+      resolve(Result.success(stats));
+    });
+  });
 export const fstatSync = resultify(fs.fstatSync);
 
 export const fsync = resultifyPromise(fs.promises.fsync);
