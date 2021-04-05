@@ -34,6 +34,26 @@ Deno.test("strings.toCodePoint: s is empty", () => {
   }, "strings.toCodePoint: empty string");
 });
 
+Deno.test(`strings.count`, () => {
+  const tests: [string, string, number][] = [
+    ["", "", 1],
+    ["", "notempty", 0],
+    ["notempty", "", 9],
+    ["smaller", "not smaller", 0],
+    ["12345678987654321", "6", 2],
+    ["611161116", "6", 3],
+    ["notequal", "NotEqual", 0],
+    ["equal", "equal", 1],
+    ["abc1231231123q", "123", 3],
+    ["11111", "11", 2],
+    ["a😂b", "", 4],
+  ];
+
+  for (const [s, substr, expectedCount] of tests) {
+    testing.assertEquals(strings.count(s, substr), expectedCount);
+  }
+});
+
 Deno.test("strings.indexAny", () => {
   const tests: [string, string, number][] = [
     ["a", "a", 0],

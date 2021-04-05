@@ -149,3 +149,27 @@ Deno.test("io.copySync: size EOF", () => {
   result = io.copySync(b, new strings.Reader("foo"), { size: 4 });
   testing.assertStrictEquals(result.unwrapFailure(), io.eof);
 });
+
+const readAllStr = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Quisque tristique justo vitae urna dignissim, vel fringilla nisi condimentum.
+Nunc condimentum, diam quis feugiat maximus, augue nisl convallis felis, et tincidunt mi mauris ut ex.
+Nulla ut sem neque.
+Duis blandit eget neque quis blandit.
+Phasellus eget molestie tellus, vel dapibus dui.
+Vivamus molestie enim nec risus eleifend, sit amet finibus lectus mattis.
+Nam eu aliquam urna, ut accumsan lectus.
+Vestibulum sed est nulla.
+Duis consequat egestas nisl, a cursus purus blandit ut.
+Suspendisse lobortis mi eu suscipit consequat.`;
+
+Deno.test("io.readAll", async () => {
+  const r = new strings.Reader(readAllStr);
+  const result = await io.readAll(r);
+  testing.assertEquals(result.unwrap(), new TextEncoder().encode(readAllStr));
+});
+
+Deno.test("io.readAllSync", () => {
+  const r = new strings.Reader(readAllStr);
+  const result = io.readAllSync(r);
+  testing.assertEquals(result.unwrap(), new TextEncoder().encode(readAllStr));
+});

@@ -341,7 +341,7 @@ if (target.action === Action.compile) {
   for (const s of srcs) {
     const source = program.getSourceFile(path.join(srcDir, s.srcName("ts")));
     if (source === undefined) {
-      fail(`Could not find source file ${s}`);
+      fail(`Could not find source file ${s.srcName("ts")}`);
     }
 
     const result = ts.transform(source, [transformer]);

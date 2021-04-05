@@ -53,4 +53,18 @@ describe("env/env.ts", () => {
     env.unsetEnv(key);
     expect(env.isEnvSet(key)).toBe(false);
   });
+
+  test("env.requireKeys", () => {
+    env.setEnv("STDLIB_TEST_ENV_FOO", "foo");
+    env.setEnv("STDLIB_TEST_ENV_BAR", "bar");
+    env.requireKeys("STDLIB_TEST_ENV_FOO", "STDLIB_TEST_ENV_BAR");
+  });
+
+  test("env.requireKeys: not set", () => {
+    env.unsetEnv("STDLIB_TEST_ENV_FOO");
+    env.unsetEnv("STDLIB_TEST_ENV_BAR");
+    expect(() => {
+      env.requireKeys("STDLIB_TEST_ENV_FOO", "STDLIB_TEST_ENV_BAR");
+    }).toPanic("required env vars missing: STDLIB_TEST_ENV_FOO, STDLIB_TEST_ENV_BAR");
+  });
 });
