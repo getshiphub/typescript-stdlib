@@ -2,6 +2,7 @@
 // All rights reserved. MIT License.
 
 import { runtime } from "../_runtime/runtime";
+import { panic } from "../global";
 
 /**
  * Checks if the given environment variable is set.
@@ -31,4 +32,20 @@ export function setEnv(name: string, value: string): void {
 /** Unsets the given environment variable. */
 export function unsetEnv(name: string): void {
   runtime.env.delete(name);
+}
+
+/**
+ * requireKeys checks that the given env vars are set.
+ * If any are not set, requireKeys will panic.
+ */
+export function requireKeys(...keys: string[]): void {
+  const missing: string[] = [];
+  for (const k of keys) {
+    if (!isEnvSet(k)) {
+      missing.push(k);
+    }
+  }
+  if (missing.length > 0) {
+    panic(`required env vars missing: ${missing.join(", ")}`);
+  }
 }
