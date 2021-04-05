@@ -5,7 +5,7 @@
 // Copyright (c) 2009 The Go Authors. All rights reserved.
 // https://github.com/golang/go/blob/master/LICENSE
 
-import { Result } from "../global";
+import { Result, panic } from "../global";
 import * as errors from "../errors/mod";
 
 /**
@@ -384,4 +384,80 @@ export function copySync(
   }
 
   return Result.success(written);
+}
+
+/** Functions like the slice operator in go, i.e. b[low:high]. */
+function sliceBuf(b: Uint8Array, low: number, high: number): Uint8Array {
+  // Want to panic instead of node throwing some other type of error
+  if (high > b.buffer.byteLength) {
+    panic(`out of index in buffer: ${high}`);
+  }
+  return new Uint8Array(b.buffer, low, high - low);
+}
+
+/** Returns a new Uint8Array that has double the capacity of b. */
+function growBuf(b: Uint8Array): Uint8Array {
+  const c = b.buffer.byteLength;
+  const maxSize = 2 ** 31 - 1;
+  if (c > maxSize - c * 2) {
+    panic("buffer too large");
+  }
+  const nb = new Uint8Array(new ArrayBuffer(2 * c), 0, b.byteLength);
+  nb.set(b);
+  return nb;
+}
+
+/**
+ * readAll reads from `r` until an error or `EOF` and resolves with the data it read.
+ * Because readAll is defined to read from src until `EOF`, it does not treat
+ * an `EOF` from `read` as an error to be reported.
+ */
+export async function readAll(r: Reader): Promise<Result<Uint8Array, error>> {
+  let b = new Uint8Array(new ArrayBuffer(512), 0, 0);
+  while (true) {
+    if (b.byteLength === b.buffer.byteLength) {
+      b = growBuf(b);
+    }
+
+    // eslint-disable-next-line no-await-in-loop
+    const result = await r.read(sliceBuf(b, b.byteLength, b.buffer.byteLength));
+    if (result.isSuccess()) {
+      const n = result.success();
+      b = sliceBuf(b, 0, b.byteLength + n);
+      continue;
+    }
+
+    const err = result.failure();
+    if (err === eof) {
+      return Result.success(b);
+    }
+    return Result.failure(err);
+  }
+}
+
+/**
+ * readAll reads from `r` until an error or `EOF` and returns the data it read.
+ * Because readAll is defined to read from src until `EOF`, it does not treat
+ * an `EOF` from `readSync` as an error to be reported.
+ */
+export function readAllSync(r: ReaderSync): Result<Uint8Array, error> {
+  let b = new Uint8Array(new ArrayBuffer(512), 0, 0);
+  while (true) {
+    if (b.byteLength === b.buffer.byteLength) {
+      b = growBuf(b);
+    }
+
+    const result = r.readSync(sliceBuf(b, b.byteLength, b.buffer.byteLength));
+    if (result.isSuccess()) {
+      const n = result.success();
+      b = sliceBuf(b, 0, b.byteLength + n);
+      continue;
+    }
+
+    const err = result.failure();
+    if (err === eof) {
+      return Result.success(b);
+    }
+    return Result.failure(err);
+  }
 }

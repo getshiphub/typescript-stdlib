@@ -62,14 +62,13 @@ export class DynamicBuffer implements Iterable<number> {
     this.#buf = src;
   }
 
-  // Functions like the slice operator in go, i.e. #buf[low:high]
+  /** Functions like the slice operator in go, i.e. #buf[low:high]. */
   #slice = (low: number, high: number): Uint8Array => {
     // Want to panic instead of node throwing some other type of error
     if (high > this.capacity) {
       panic(`out of index in buffer: ${high}`);
     }
-
-    return new Uint8Array(this.#buf.buffer, low, high);
+    return new Uint8Array(this.#buf.buffer, low, high - low);
   };
 
   /**
@@ -84,7 +83,6 @@ export class DynamicBuffer implements Iterable<number> {
       this.#buf = this.#slice(0, l + n);
       return l;
     }
-
     return -1;
   };
 
