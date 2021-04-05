@@ -19,6 +19,10 @@ const env = {
   delete(key: string): void {
     delete process.env[key];
   },
+  toObject(): Record<string, string> {
+    // TS is complaining that the values should be `string | undefined`
+    return process.env as Record<string, string>;
+  },
 };
 
 export const runtime: Runtime = {
