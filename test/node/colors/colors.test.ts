@@ -3,15 +3,15 @@ import { colors, env } from "../../../src";
 describe("colors/colors.ts", () => {
   let noColor: string | undefined;
   beforeAll(() => {
-    if (env.isEnvSet("NO_COLOR")) {
-      noColor = env.getEnv("NO_COLOR");
-      env.unsetEnv("NO_COLOR");
+    noColor = env.lookup("NO_COLOR");
+    if (noColor !== undefined) {
+      env.unset("NO_COLOR");
     }
   });
 
   afterAll(() => {
     if (noColor !== undefined) {
-      env.setEnv("NO_COLOR", noColor);
+      env.set("NO_COLOR", noColor);
     }
   });
 
