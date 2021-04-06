@@ -146,7 +146,7 @@ export function expand(s: string, mapping: (key: string) => string): string {
   return buf.join("") + s.slice(i);
 }
 
-const doubleQuoteSpecialChars = new Set(["\\", "\n", "\r", '"', "!", "$", "`"]);
+const doubleQuoteSpecialChars = new Set(["\\", "\n", "\r", '"', "!", "$", "`", "#"]);
 
 /**
  * escapeValue escapes any special characters in the value `v`.
@@ -162,7 +162,9 @@ function escapeValue(v: string): string {
     }
 
     escapeNeeded = true;
-    if (c === "\n") {
+    if (c === "#") {
+      buf.push(c);
+    } else if (c === "\n") {
       buf.push("\\n");
     } else if (c === "\r") {
       buf.push("\\r");

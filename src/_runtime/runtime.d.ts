@@ -34,6 +34,7 @@ export interface Runtime {
   exit(code?: number): never;
   inspect(value: unknown, options?: InspectOptions): string;
   isatty(rid: number): boolean;
+  readTextFileSync(path: string | URL): string;
 }
 
 export declare const runtime: Runtime;

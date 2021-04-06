@@ -5,6 +5,7 @@
 
 // This file contains the Node specific implementation of the runtime API.
 
+import { readFileSync } from "fs";
 import { isatty } from "tty";
 import { inspect } from "util";
 import type { Runtime } from "./runtime";
@@ -40,4 +41,7 @@ export const runtime: Runtime = {
   // The interface required is a subset of what inspect offers so this is fine
   inspect: inspect as any,
   isatty,
+  readTextFileSync(path: string | URL): string {
+    return readFileSync(path, { encoding: "utf-8" });
+  },
 };
