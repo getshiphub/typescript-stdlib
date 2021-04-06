@@ -130,6 +130,7 @@ describe("env/env.ts", () => {
       ["HOME", "/usr/root"],
       ["quoted", `va"lu"e`],
       ["escape", "\n\r\\r!$"],
+      ["hash", "# not a comment"],
     ]);
     const s = env.stringify(m);
 
@@ -137,6 +138,7 @@ describe("env/env.ts", () => {
 baz=123
 escape="\\n\\r\\\\r\\!\\$"
 foo=bar
+hash="# not a comment"
 quoted="va\\"lu\\"e"`);
   });
 });
