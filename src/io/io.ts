@@ -35,6 +35,9 @@ export const errUnexpectedEOF = errors.errorString("unexpected EOF");
  */
 export const errClosed = errors.errorString("io: read/write on closed resource");
 
+// 32 KiB
+const defaultBufSize = 32 * 1024;
+
 /* Types */
 
 /**
@@ -337,8 +340,7 @@ export function copySync(
 
   let buf = opts?.buf;
   if (buf === undefined) {
-    // 32 KiB
-    let size = 32 * 1024;
+    let size = defaultBufSize;
     if (src instanceof LimitedReader && size > src.max) {
       if (src.max < 1) {
         size = 1;
@@ -384,6 +386,99 @@ export function copySync(
   }
 
   return Result.success(written);
+}
+
+/**
+ * ReaderIterator creates an async iterator from a `Reader`.
+ * This allows a `Reader` to be iterated over using a `for await...of` loop.
+ *
+ * The iterator uses the same buffer for each iteration and replaces the contents
+ * with the new data read from the reader. The caller must copy the data from
+ * an iteration chunk, otherwise it will be overwritten during the next iteration.
+ *
+ * The iterator while stop when it encounters an error.
+ * The `err()` method can be used to check if a non-EOF error occurred.
+ */
+export class ReaderIterator {
+  #r: Reader;
+  #buf: Uint8Array;
+  #err?: error; // Saved error
+
+  /**
+   * Creates a new `ReaderIterator` from `r`.
+   * @param opts.buf A buffer that will store the chunks at each iteration.
+   * If omitted, one will be allocated. This can be used to set the chunk size.
+   */
+  constructor(r: Reader, opts?: { buf?: Uint8Array }) {
+    this.#r = r;
+    this.#buf = opts?.buf ?? new Uint8Array(defaultBufSize);
+  }
+
+  /** err returns the first non-EOF error that was ecountered by the iterator. */
+  err(): error | undefined {
+    return this.#err;
+  }
+
+  async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
+    while (true) {
+      // eslint-disable-next-line no-await-in-loop
+      const result = await this.#r.read(this.#buf);
+      if (result.isFailure()) {
+        const err = result.failure();
+        if (err !== eof) {
+          this.#err = err;
+        }
+        break;
+      }
+      yield this.#buf.subarray(0, result.success());
+    }
+  }
+}
+
+/**
+ * ReaderSyncIterator creates an iterator from a `ReaderSync`.
+ * This allows a `ReaderSync` to be iterated over using a `for...of` loop.
+ *
+ * The iterator uses the same buffer for each iteration and replaces the contents
+ * with the new data read from the reader. The caller must copy the data from
+ * an iteration chunk, otherwise it will be overwritten during the next iteration.
+ *
+ * The iterator while stop when it encounters an error.
+ * The `err()` method can be used to check if a non-EOF error occurred.
+ */
+export class ReaderSyncIterator {
+  #r: ReaderSync;
+  #buf: Uint8Array;
+  #err?: error; // Saved error
+
+  /**
+   * Creates a new `ReaderSyncIterator` from `r`.
+   * @param opts.buf A buffer that will store the chunks at each iteration.
+   * If omitted, one will be allocated. This can be used to set the chunk size.
+   */
+  constructor(r: ReaderSync, opts?: { buf?: Uint8Array }) {
+    this.#r = r;
+    this.#buf = opts?.buf ?? new Uint8Array(defaultBufSize);
+  }
+
+  /** err returns the first non-EOF error that was ecountered by the iterator. */
+  err(): error | undefined {
+    return this.#err;
+  }
+
+  *[Symbol.iterator](): Iterator<Uint8Array> {
+    while (true) {
+      const result = this.#r.readSync(this.#buf);
+      if (result.isFailure()) {
+        const err = result.failure();
+        if (err !== eof) {
+          this.#err = err;
+        }
+        break;
+      }
+      yield this.#buf.subarray(0, result.success());
+    }
+  }
 }
 
 /** Functions like the slice operator in go, i.e. b[low:high]. */

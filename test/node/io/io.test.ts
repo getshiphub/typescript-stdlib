@@ -142,6 +142,62 @@ describe("io/io.ts", () => {
     expect(result.unwrapFailure()).toBe(io.eof);
   });
 
+  test("io.ReaderIterator", async () => {
+    const r = new strings.Reader("hello, world.");
+    const it = new io.ReaderIterator(r);
+    const chunks: number[][] = [];
+    for await (const chunk of it) {
+      chunks.push([...chunk]);
+    }
+
+    expect(chunks).toEqual([[104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 46]]);
+    expect(it.err()).toBeUndefined();
+  });
+
+  test("io.ReaderIterator: multiple chunks", async () => {
+    const r = new strings.Reader("hello, world.");
+    const it = new io.ReaderIterator(r, { buf: new Uint8Array(5) });
+    const chunks: number[][] = [];
+    for await (const chunk of it) {
+      chunks.push([...chunk]);
+    }
+
+    expect(chunks).toEqual([
+      [104, 101, 108, 108, 111],
+      [44, 32, 119, 111, 114],
+      [108, 100, 46],
+    ]);
+    expect(it.err()).toBeUndefined();
+  });
+
+  test("io.ReaderSyncIterator", () => {
+    const r = new strings.Reader("hello, world.");
+    const it = new io.ReaderSyncIterator(r);
+    const chunks: number[][] = [];
+    for (const chunk of it) {
+      chunks.push([...chunk]);
+    }
+
+    expect(chunks).toEqual([[104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 46]]);
+    expect(it.err()).toBeUndefined();
+  });
+
+  test("io.ReaderSyncIterator: multiple chunks", () => {
+    const r = new strings.Reader("hello, world.");
+    const it = new io.ReaderSyncIterator(r, { buf: new Uint8Array(5) });
+    const chunks: number[][] = [];
+    for (const chunk of it) {
+      chunks.push([...chunk]);
+    }
+
+    expect(chunks).toEqual([
+      [104, 101, 108, 108, 111],
+      [44, 32, 119, 111, 114],
+      [108, 100, 46],
+    ]);
+    expect(it.err()).toBeUndefined();
+  });
+
   const readAllStr = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Quisque tristique justo vitae urna dignissim, vel fringilla nisi condimentum.
 Nunc condimentum, diam quis feugiat maximus, augue nisl convallis felis, et tincidunt mi mauris ut ex.
