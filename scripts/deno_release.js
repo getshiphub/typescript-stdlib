@@ -82,7 +82,7 @@ function prepare(version) {
   // Commit
   process.chdir(denoReleaseDir);
   exec("git", ["add", "."]);
-  exec("git", ["commit", "-m", "Update deno release"]);
+  exec("git", ["commit", "-m", `Release v${version}`]);
 
   // Create tag for release
   const tag = `deno/${version}`;
