@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Christopher Szatmary <cs@christopherszatmary.com>
+// Copyright (c) 2020-2021 Christopher Szatmary <cs@christopherszatmary.com>
 // All rights reserved. MIT License.
 import { Result, panic, symbols } from "../global.ts";
 import * as io from "../io/mod.ts";
@@ -48,13 +48,13 @@ export class DynamicBuffer implements Iterable<number> {
         }
         this.#buf = src;
     }
-    // Functions like the slice operator in go, i.e. #buf[low:high]
+    /** Functions like the slice operator in go, i.e. #buf[low:high]. */
     #slice = (low: number, high: number): Uint8Array => {
         // Want to panic instead of node throwing some other type of error
         if (high > this.capacity) {
             panic(`out of index in buffer: ${high}`);
         }
-        return new Uint8Array(this.#buf.buffer, low, high);
+        return new Uint8Array(this.#buf.buffer, low, high - low);
     };
     /**
      * For the fast-case where the internal buffer only needs to be resliced,

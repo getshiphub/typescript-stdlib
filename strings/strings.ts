@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Christopher Szatmary <cs@christopherszatmary.com>
+// Copyright (c) 2020-2021 Christopher Szatmary <cs@christopherszatmary.com>
 // All rights reserved. MIT License.
 import { panic } from "../global.ts";
 /**
@@ -19,6 +19,26 @@ export function toCodePoint(s: string): CodePoint {
     }
     // Should never be undefined because we checked that the string isn't empty
     return s.codePointAt(0) as number;
+}
+/**
+ * count counts the number of non-overlapping instances of substr in s.
+ * If substr is an empty string, count returns 1 + the number of Unicode code points in s.
+ */
+export function count(s: string, substr: string): number {
+    if (substr.length === 0) {
+        // The iterator used in the spread iterates over code points not bytes
+        return [...s].length + 1;
+    }
+    let n = 0;
+    let str = s;
+    while (true) {
+        const i = str.indexOf(substr);
+        if (i === -1) {
+            return n;
+        }
+        n++;
+        str = str.slice(i + substr.length);
+    }
 }
 /**
  * Returns the index of of the first instance of any char from `chars`

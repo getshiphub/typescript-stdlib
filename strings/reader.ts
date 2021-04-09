@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Christopher Szatmary <cs@christopherszatmary.com>
+// Copyright (c) 2020-2021 Christopher Szatmary <cs@christopherszatmary.com>
 // All rights reserved. MIT License.
 // This code has been ported almost directly from Go's src/strings/reader.go
 // Copyright 2009 The Go Authors. All rights reserved. BSD license.

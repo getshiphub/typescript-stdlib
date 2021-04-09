@@ -1,9 +1,9 @@
-// Copyright (c) 2020 Christopher Szatmary <cs@christopherszatmary.com>
+// Copyright (c) 2020-2021 Christopher Szatmary <cs@christopherszatmary.com>
 // All rights reserved. MIT License.
 // These interfaces were adapted from Go's io package.
 // Copyright (c) 2009 The Go Authors. All rights reserved.
 // https://github.com/golang/go/blob/master/LICENSE
-import { Result } from "../global.ts";
+import { Result, panic } from "../global.ts";
 import * as errors from "../errors/mod.ts";
 /**
  * errShortWrite means that a write accepted fewer bytes than
@@ -28,6 +28,8 @@ export const errUnexpectedEOF = errors.errorString("unexpected EOF");
  * or written to has been closed.
  */
 export const errClosed = errors.errorString("io: read/write on closed resource");
+// 32 KiB
+const defaultBufSize = 32 * 1024;
 /* Types */
 /**
  * Reader is the interface that wraps the basic `read` method.
@@ -293,8 +295,7 @@ export function copySync(dst: WriterSync, src: ReaderSync, opts?: {
     }
     let buf = opts?.buf;
     if (buf === undefined) {
-        // 32 KiB
-        let size = 32 * 1024;
+        let size = defaultBufSize;
         if (src instanceof LimitedReader && size > src.max) {
             if (src.max < 1) {
                 size = 1;
@@ -333,4 +334,161 @@ export function copySync(dst: WriterSync, src: ReaderSync, opts?: {
         return Result.failure(eof);
     }
     return Result.success(written);
+}
+/**
+ * ReaderIterator creates an async iterator from a `Reader`.
+ * This allows a `Reader` to be iterated over using a `for await...of` loop.
+ *
+ * The iterator uses the same buffer for each iteration and replaces the contents
+ * with the new data read from the reader. The caller must copy the data from
+ * an iteration chunk, otherwise it will be overwritten during the next iteration.
+ *
+ * The iterator while stop when it encounters an error.
+ * The `err()` method can be used to check if a non-EOF error occurred.
+ */
+export class ReaderIterator {
+    #r: Reader;
+    #buf: Uint8Array;
+    #err?: error; // Saved error
+    /**
+     * Creates a new `ReaderIterator` from `r`.
+     * @param opts.buf A buffer that will store the chunks at each iteration.
+     * If omitted, one will be allocated. This can be used to set the chunk size.
+     */
+    constructor(r: Reader, opts?: {
+        buf?: Uint8Array;
+    }) {
+        this.#r = r;
+        this.#buf = opts?.buf ?? new Uint8Array(defaultBufSize);
+    }
+    /** err returns the first non-EOF error that was ecountered by the iterator. */
+    err(): error | undefined {
+        return this.#err;
+    }
+    async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
+        while (true) {
+            // eslint-disable-next-line no-await-in-loop
+            const result = await this.#r.read(this.#buf);
+            if (result.isFailure()) {
+                const err = result.failure();
+                if (err !== eof) {
+                    this.#err = err;
+                }
+                break;
+            }
+            yield this.#buf.subarray(0, result.success());
+        }
+    }
+}
+/**
+ * ReaderSyncIterator creates an iterator from a `ReaderSync`.
+ * This allows a `ReaderSync` to be iterated over using a `for...of` loop.
+ *
+ * The iterator uses the same buffer for each iteration and replaces the contents
+ * with the new data read from the reader. The caller must copy the data from
+ * an iteration chunk, otherwise it will be overwritten during the next iteration.
+ *
+ * The iterator while stop when it encounters an error.
+ * The `err()` method can be used to check if a non-EOF error occurred.
+ */
+export class ReaderSyncIterator {
+    #r: ReaderSync;
+    #buf: Uint8Array;
+    #err?: error; // Saved error
+    /**
+     * Creates a new `ReaderSyncIterator` from `r`.
+     * @param opts.buf A buffer that will store the chunks at each iteration.
+     * If omitted, one will be allocated. This can be used to set the chunk size.
+     */
+    constructor(r: ReaderSync, opts?: {
+        buf?: Uint8Array;
+    }) {
+        this.#r = r;
+        this.#buf = opts?.buf ?? new Uint8Array(defaultBufSize);
+    }
+    /** err returns the first non-EOF error that was ecountered by the iterator. */
+    err(): error | undefined {
+        return this.#err;
+    }
+    *[Symbol.iterator](): Iterator<Uint8Array> {
+        while (true) {
+            const result = this.#r.readSync(this.#buf);
+            if (result.isFailure()) {
+                const err = result.failure();
+                if (err !== eof) {
+                    this.#err = err;
+                }
+                break;
+            }
+            yield this.#buf.subarray(0, result.success());
+        }
+    }
+}
+/** Functions like the slice operator in go, i.e. b[low:high]. */
+function sliceBuf(b: Uint8Array, low: number, high: number): Uint8Array {
+    // Want to panic instead of node throwing some other type of error
+    if (high > b.buffer.byteLength) {
+        panic(`out of index in buffer: ${high}`);
+    }
+    return new Uint8Array(b.buffer, low, high - low);
+}
+/** Returns a new Uint8Array that has double the capacity of b. */
+function growBuf(b: Uint8Array): Uint8Array {
+    const c = b.buffer.byteLength;
+    const maxSize = 2 ** 31 - 1;
+    if (c > maxSize - c * 2) {
+        panic("buffer too large");
+    }
+    const nb = new Uint8Array(new ArrayBuffer(2 * c), 0, b.byteLength);
+    nb.set(b);
+    return nb;
+}
+/**
+ * readAll reads from `r` until an error or `EOF` and resolves with the data it read.
+ * Because readAll is defined to read from src until `EOF`, it does not treat
+ * an `EOF` from `read` as an error to be reported.
+ */
+export async function readAll(r: Reader): Promise<Result<Uint8Array, error>> {
+    let b = new Uint8Array(new ArrayBuffer(512), 0, 0);
+    while (true) {
+        if (b.byteLength === b.buffer.byteLength) {
+            b = growBuf(b);
+        }
+        // eslint-disable-next-line no-await-in-loop
+        const result = await r.read(sliceBuf(b, b.byteLength, b.buffer.byteLength));
+        if (result.isSuccess()) {
+            const n = result.success();
+            b = sliceBuf(b, 0, b.byteLength + n);
+            continue;
+        }
+        const err = result.failure();
+        if (err === eof) {
+            return Result.success(b);
+        }
+        return Result.failure(err);
+    }
+}
+/**
+ * readAll reads from `r` until an error or `EOF` and returns the data it read.
+ * Because readAll is defined to read from src until `EOF`, it does not treat
+ * an `EOF` from `readSync` as an error to be reported.
+ */
+export function readAllSync(r: ReaderSync): Result<Uint8Array, error> {
+    let b = new Uint8Array(new ArrayBuffer(512), 0, 0);
+    while (true) {
+        if (b.byteLength === b.buffer.byteLength) {
+            b = growBuf(b);
+        }
+        const result = r.readSync(sliceBuf(b, b.byteLength, b.buffer.byteLength));
+        if (result.isSuccess()) {
+            const n = result.success();
+            b = sliceBuf(b, 0, b.byteLength + n);
+            continue;
+        }
+        const err = result.failure();
+        if (err === eof) {
+            return Result.success(b);
+        }
+        return Result.failure(err);
+    }
 }
