@@ -63,13 +63,13 @@ export class DynamicBuffer implements Iterable<number> {
   }
 
   /** Functions like the slice operator in go, i.e. #buf[low:high]. */
-  #slice = (low: number, high: number): Uint8Array => {
+  #slice(low: number, high: number): Uint8Array {
     // Want to panic instead of node throwing some other type of error
     if (high > this.capacity) {
       panic(`out of index in buffer: ${high}`);
     }
     return new Uint8Array(this.#buf.buffer, low, high - low);
-  };
+  }
 
   /**
    * For the fast-case where the internal buffer only needs to be resliced,
@@ -77,21 +77,21 @@ export class DynamicBuffer implements Iterable<number> {
    * Returns the index where bytes should be written or -1 if the buffer
    * couldn't be resliced.
    */
-  #tryGrowByReslice = (n: number): number => {
+  #tryGrowByReslice(n: number): number {
     const l = this.#buf.byteLength;
     if (n <= this.capacity - l) {
       this.#buf = this.#slice(0, l + n);
       return l;
     }
     return -1;
-  };
+  }
 
   /**
    * Grows the buffer to guarantee space for `n` more bytes.
    * It returns the index where bytes should be written.
    * If the buffer can't grow it will panic.
    */
-  #grow = (n: number): number => {
+  #grow(n: number): number {
     const m = this.length;
 
     // If buffer is empty, reset to recover space from read portion.
@@ -124,10 +124,10 @@ export class DynamicBuffer implements Iterable<number> {
     this.#off = 0;
     this.#buf = this.#slice(0, m + n);
     return m;
-  };
+  }
 
   /** #readSlice is like readBytes but returns a reference to internal buffer data. */
-  #readSlice = (delim: number): [Uint8Array, error | undefined] => {
+  #readSlice(delim: number): [Uint8Array, error | undefined] {
     const i = this.#buf.indexOf(delim, this.#off);
     let end = this.#off + i + 1;
     let err: error | undefined;
@@ -139,7 +139,7 @@ export class DynamicBuffer implements Iterable<number> {
     const line = this.#buf.subarray(this.#off, end);
     this.#off = end;
     return [line, err];
-  };
+  }
 
   /** Returns whether or not the unread portion of the buffer is empty. */
   get isEmpty(): boolean {

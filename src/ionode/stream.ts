@@ -34,12 +34,12 @@ export class StreamReader {
 
   constructor(stream: ReadableStream) {
     this.#stream = stream;
-    stream.on("error", this.#errorHandler);
+    stream.on("error", this.#errorHandler.bind(this));
   }
 
-  #errorHandler = (e: Error): void => {
+  #errorHandler(e: Error): void {
     this.#error = e;
-  };
+  }
 
   read(p: Uint8Array): Promise<Result<number, error>> {
     return new Promise((resolve) => {
@@ -134,15 +134,15 @@ export class StreamWriter {
 
   constructor(stream: WritableStream) {
     this.#stream = stream;
-    stream.on("error", this.#errorHandler);
+    stream.on("error", this.#errorHandler.bind(this));
   }
 
-  #errorHandler = (e: Error): void => {
+  #errorHandler(e: Error): void {
     this.#error = e;
-  };
+  }
 
   /** #write promisifies WritableStream's write method */
-  #write = (chunk: Uint8Array | string): Promise<Result<number, error>> => {
+  #write(chunk: Uint8Array | string): Promise<Result<number, error>> {
     return new Promise((resolve) => {
       if (this.#error !== undefined) {
         const err = errors.fromJSError(this.#error);
@@ -237,7 +237,7 @@ export class StreamWriter {
       this.#stream.on("error", errorHandler);
       this.#stream.on("finish", finishHandler);
     });
-  };
+  }
 
   write(p: Uint8Array): Promise<Result<number, error>> {
     return this.#write(p);

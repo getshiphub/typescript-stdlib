@@ -24,18 +24,18 @@ class StdioWriter {
 
   constructor(stream: NodeStdWriteStream) {
     this.#stream = stream;
-    stream.on("error", this.#errorHandler);
+    stream.on("error", this.#errorHandler.bind(this));
   }
 
   get fd(): number {
     return this.#stream.fd;
   }
 
-  #errorHandler = (e: Error): void => {
+  #errorHandler(e: Error): void {
     this.#error = e;
-  };
+  }
 
-  #write = (chunk: Uint8Array | string): Promise<Result<number, error>> => {
+  #write(chunk: Uint8Array | string): Promise<Result<number, error>> {
     return new Promise((resolve) => {
       if (this.#error !== undefined) {
         const err = errors.fromJSError(this.#error);
@@ -120,9 +120,9 @@ class StdioWriter {
       this.#stream.on("drain", drainHandler);
       this.#stream.on("error", errorHandler);
     });
-  };
+  }
 
-  #writeSync = (chunk: Uint8Array | string): Result<number, error> => {
+  #writeSync(chunk: Uint8Array | string): Result<number, error> {
     if (this.#error !== undefined) {
       const err = errors.fromJSError(this.#error);
       this.#error = undefined;
@@ -160,7 +160,7 @@ class StdioWriter {
     }
 
     return Result.success(length);
-  };
+  }
 
   write(p: Uint8Array): Promise<Result<number, error>> {
     return this.#write(p);
