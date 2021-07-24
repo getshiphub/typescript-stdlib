@@ -80,7 +80,4 @@ node_modules/
 # Build output
 dist
 
-# Ignore this, it gets regenerated every time
-deno.d.ts
-
 .deno-release

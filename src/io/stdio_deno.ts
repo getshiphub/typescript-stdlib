@@ -6,7 +6,7 @@ import * as errors from "../errors/mod";
 import { Writer, WriterSync } from "./io";
 
 interface DenoStdWriter extends Deno.Writer, Deno.WriterSync {
-  rid: number;
+  readonly rid: number;
 }
 
 class StdioWriter {
