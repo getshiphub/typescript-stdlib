@@ -34,7 +34,7 @@ export class StreamReader {
 
   constructor(stream: ReadableStream) {
     this.#stream = stream;
-    stream.on("error", this.#errorHandler);
+    stream.on("error", this.#errorHandler.bind(this));
   }
 
   #errorHandler(e: Error): void {
@@ -134,7 +134,7 @@ export class StreamWriter {
 
   constructor(stream: WritableStream) {
     this.#stream = stream;
-    stream.on("error", this.#errorHandler);
+    stream.on("error", this.#errorHandler.bind(this));
   }
 
   #errorHandler(e: Error): void {

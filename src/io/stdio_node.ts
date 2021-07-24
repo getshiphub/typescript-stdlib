@@ -24,7 +24,7 @@ class StdioWriter {
 
   constructor(stream: NodeStdWriteStream) {
     this.#stream = stream;
-    stream.on("error", this.#errorHandler);
+    stream.on("error", this.#errorHandler.bind(this));
   }
 
   get fd(): number {

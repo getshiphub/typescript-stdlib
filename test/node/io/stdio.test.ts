@@ -8,7 +8,7 @@ class MockStdio {
   constructor(stream: NodeJS.WritableStream) {
     this.#originalWrite = stream.write;
     this.stream = stream;
-    this.stream.write = this.#write;
+    this.stream.write = this.#write.bind(this);
   }
 
   #write(
