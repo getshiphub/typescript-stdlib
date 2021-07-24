@@ -11,11 +11,11 @@ class MockStdio {
     this.stream.write = this.#write;
   }
 
-  #write = (
+  #write(
     chunk: Buffer | string,
     encodingOrCb?: BufferEncoding | ((err?: Error | null) => void),
     cb?: (err?: Error | null) => void,
-  ): boolean => {
+  ): boolean {
     if (typeof chunk === "string") {
       let encoding: BufferEncoding | undefined;
       if (typeof encodingOrCb === "string") {
@@ -34,7 +34,7 @@ class MockStdio {
     }
 
     return true;
-  };
+  }
 
   restore(): void {
     this.stream.write = this.#originalWrite;
@@ -43,8 +43,8 @@ class MockStdio {
 
 describe("io/io.ts", () => {
   test("io: stdio: fd", () => {
-    const stdout = (io.stdout as unknown) as { fd: number };
-    const stderr = (io.stderr as unknown) as { fd: number };
+    const stdout = io.stdout as unknown as { fd: number };
+    const stderr = io.stderr as unknown as { fd: number };
     expect(stdout.fd).toBe(1);
     expect(stderr.fd).toBe(2);
   });

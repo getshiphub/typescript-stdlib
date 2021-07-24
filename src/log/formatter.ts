@@ -167,7 +167,7 @@ export class TextFormatter {
     this.fieldMap = opts?.fieldMap ?? new Map();
   }
 
-  #init = (log: Log): void => {
+  #init(log: Log): void {
     if (log.out !== undefined) {
       // Deno uses rid (resource id) while Node uses fd (file descriptor)
       // This is a hack to make this work cross target
@@ -193,14 +193,14 @@ export class TextFormatter {
     }
 
     this.#initCalled = true;
-  };
+  }
 
-  #isColored = (): boolean => {
+  #isColored(): boolean {
     const isColored = this.forceColors || (this.#isTerminal && runtime.build.os !== "windows");
     return isColored && !this.disableColors;
-  };
+  }
 
-  #needsQuoting = (text: string): boolean => {
+  #needsQuoting(text: string): boolean {
     if (this.forceQuote) {
       return true;
     }
@@ -233,9 +233,9 @@ export class TextFormatter {
     }
 
     return false;
-  };
+  }
 
-  #appendValue = (b: bytes.DynamicBuffer, value: unknown): void => {
+  #appendValue(b: bytes.DynamicBuffer, value: unknown): void {
     let str: string;
     if (typeof value === "string") {
       str = value;
@@ -248,18 +248,18 @@ export class TextFormatter {
     } else {
       b.writeStringSync(`"${str}"`);
     }
-  };
+  }
 
-  #appendKeyValue = (b: bytes.DynamicBuffer, key: string, value: unknown): void => {
+  #appendKeyValue(b: bytes.DynamicBuffer, key: string, value: unknown): void {
     if (b.length > 0) {
       b.writeStringSync(" ");
     }
 
     b.writeStringSync(`${key}=`);
     this.#appendValue(b, value);
-  };
+  }
 
-  #printColored = (b: bytes.DynamicBuffer, log: Log, keys: string[], data: Fields): void => {
+  #printColored(b: bytes.DynamicBuffer, log: Log, keys: string[], data: Fields): void {
     let colorFn: (str: string) => string;
     switch (log.level) {
       case Level.debug:
@@ -303,7 +303,7 @@ export class TextFormatter {
       b.writeStringSync(` ${colorFn(k)}=`);
       this.#appendValue(b, data[k]);
     }
-  };
+  }
 
   format(log: Log): Result<Uint8Array, error> {
     const data = { ...log.data };

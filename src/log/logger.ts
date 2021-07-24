@@ -27,7 +27,7 @@ export class StandardLogger implements Logger {
     this.level = opts?.level ?? Level.info;
   }
 
-  #log = (level: Level, msg: string, fields?: Fields): void => {
+  #log(level: Level, msg: string, fields?: Fields): void {
     if (!this.isLevelEnabled(level)) {
       return;
     }
@@ -52,7 +52,7 @@ export class StandardLogger implements Logger {
     if (writeResult.isFailure()) {
       console.error(`Failed to write log: ${writeResult.failure().error()}`);
     }
-  };
+  }
 
   /** Checks if the given log level is enabled for the logger. */
   isLevelEnabled(level: Level): boolean {
