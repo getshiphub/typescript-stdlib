@@ -1,7 +1,7 @@
-import { AssertionError } from "https://deno.land/std@0.92.0/testing/asserts.ts";
+import { AssertionError } from "https://deno.land/std@0.102.0/testing/asserts.ts";
 import { recover, bytes } from "../../dist/deno/mod.ts";
 
-export * from "https://deno.land/std@0.92.0/testing/asserts.ts";
+export * from "https://deno.land/std@0.102.0/testing/asserts.ts";
 
 /**
  * assertPanics executes a function, expecting it to panic. If it does not
