@@ -50,7 +50,7 @@ declare interface PerformanceMeasureOptions {
   detail?: any;
 
   /** Timestamp to be used as the start time or string to be used as start
-   * mark.*/
+   * mark. */
   start?: string | number;
 
   /** Duration between the start and end times. */
@@ -62,27 +62,26 @@ declare interface PerformanceMeasureOptions {
 
 declare namespace Deno {
   /** A set of error constructors that are raised by Deno APIs. */
-  export const errors: {
-    NotFound: ErrorConstructor;
-    PermissionDenied: ErrorConstructor;
-    ConnectionRefused: ErrorConstructor;
-    ConnectionReset: ErrorConstructor;
-    ConnectionAborted: ErrorConstructor;
-    NotConnected: ErrorConstructor;
-    AddrInUse: ErrorConstructor;
-    AddrNotAvailable: ErrorConstructor;
-    BrokenPipe: ErrorConstructor;
-    AlreadyExists: ErrorConstructor;
-    InvalidData: ErrorConstructor;
-    TimedOut: ErrorConstructor;
-    Interrupted: ErrorConstructor;
-    WriteZero: ErrorConstructor;
-    UnexpectedEof: ErrorConstructor;
-    BadResource: ErrorConstructor;
-    Http: ErrorConstructor;
-    Busy: ErrorConstructor;
-    NotSupported: ErrorConstructor;
-  };
+  export namespace errors {
+    export class NotFound extends Error {}
+    export class PermissionDenied extends Error {}
+    export class ConnectionRefused extends Error {}
+    export class ConnectionReset extends Error {}
+    export class ConnectionAborted extends Error {}
+    export class NotConnected extends Error {}
+    export class AddrInUse extends Error {}
+    export class AddrNotAvailable extends Error {}
+    export class BrokenPipe extends Error {}
+    export class AlreadyExists extends Error {}
+    export class InvalidData extends Error {}
+    export class TimedOut extends Error {}
+    export class Interrupted extends Error {}
+    export class WriteZero extends Error {}
+    export class UnexpectedEof extends Error {}
+    export class BadResource extends Error {}
+    export class Http extends Error {}
+    export class Busy extends Error {}
+  }
 
   /** The current process id of the runtime. */
   export const pid: number;
@@ -110,21 +109,23 @@ declare namespace Deno {
    * See: https://no-color.org/ */
   export const noColor: boolean;
 
+  /** **UNSTABLE**: New option, yet to be vetted. */
+  export interface TestContext {}
+
   export interface TestDefinition {
-    fn: () => void | Promise<void>;
+    fn: (t: TestContext) => void | Promise<void>;
     name: string;
     ignore?: boolean;
     /** If at least one test has `only` set to true, only run tests that have
      * `only` set to true and fail the test suite. */
     only?: boolean;
     /** Check that the number of async completed ops after the test is the same
-     * as number of dispatched ops. Defaults to true.*/
+     * as number of dispatched ops. Defaults to true. */
     sanitizeOps?: boolean;
     /** Ensure the test case does not "leak" resources - ie. the resource table
      * after the test has exactly the same contents as before the test. Defaults
      * to true. */
     sanitizeResources?: boolean;
-
     /** Ensure the test case does not prematurely cause the process to exit,
      * for example via a call to `Deno.exit`. Defaults to true. */
     sanitizeExit?: boolean;
@@ -180,8 +181,8 @@ declare namespace Deno {
    *   assertEquals(decoder.decode(data), "Hello world");
    * });
    * ```
-   * */
-  export function test(name: string, fn: () => void | Promise<void>): void;
+   */
+  export function test(name: string, fn: (t: TestContext) => void | Promise<void>): void;
 
   /** Exit the Deno process with optional exit code. If no exit code is supplied
    * then Deno will exit with return code of 0.
@@ -292,7 +293,6 @@ declare namespace Deno {
   export function linkSync(oldpath: string, newpath: string): void;
 
   /**
-   *
    * Creates `newpath` as a hard link to `oldpath`.
    *
    * ```ts
@@ -818,7 +818,7 @@ declare namespace Deno {
      * any write calls on it will overwrite its contents, by default without
      * truncating it. */
     write?: boolean;
-    /**Sets the option for the append mode. This option, when `true`, means that
+    /** Sets the option for the append mode. This option, when `true`, means that
      * writes will append to a file instead of overwriting previous contents.
      * Note that setting `{ write: true, append: true }` has the same effect as
      * setting only `{ append: true }`. */
@@ -853,7 +853,6 @@ declare namespace Deno {
   }
 
   /**
-   *
    *  Check if a given resource id (`rid`) is a TTY.
    *
    * ```ts
@@ -1462,7 +1461,7 @@ declare namespace Deno {
    *
    * Requires `allow-read` permission for the target path.
    * Also requires `allow-read` permission for the CWD if the target path is
-   * relative.*/
+   * relative. */
   export function realPathSync(path: string | URL): string;
 
   /** Resolves to the absolute normalized path, with symbolic links resolved.
@@ -1478,7 +1477,7 @@ declare namespace Deno {
    *
    * Requires `allow-read` permission for the target path.
    * Also requires `allow-read` permission for the CWD if the target path is
-   * relative.*/
+   * relative. */
   export function realPath(path: string | URL): Promise<string>;
 
   export interface DirEntry {
@@ -1624,6 +1623,12 @@ declare namespace Deno {
     create?: boolean;
     /** Permissions always applied to file. */
     mode?: number;
+    /**
+     * An abort signal to allow cancellation of the file write operation.
+     * If the signal becomes aborted the writeFile operation will be stopped
+     * and the promise returned will be rejected with an AbortError.
+     */
+    signal?: AbortSignal;
   }
 
   /** Synchronously write `data` to the given `path`, by default creating a new
@@ -1734,7 +1739,7 @@ declare namespace Deno {
    * Requires `allow-write` permission. */
   export function truncate(name: string, len?: number): Promise<void>;
 
-  export interface Metrics {
+  export interface OpMetrics {
     opsDispatched: number;
     opsDispatchedSync: number;
     opsDispatchedAsync: number;
@@ -1746,6 +1751,10 @@ declare namespace Deno {
     bytesSentControl: number;
     bytesSentData: number;
     bytesReceived: number;
+  }
+
+  export interface Metrics extends OpMetrics {
+    ops: Record<string, OpMetrics>;
   }
 
   /** Receive metrics from the privileged side of Deno. This is primarily used
@@ -1828,7 +1837,7 @@ declare namespace Deno {
    *    console.log(">>>> event", event);
    *    // { kind: "create", paths: [ "/foo.txt" ] }
    * }
-   *```
+   * ```
    *
    * Requires `allow-read` permission.
    *
@@ -1876,7 +1885,7 @@ declare namespace Deno {
      * ]);
      * p.close();
      * ```
-     **/
+     */
     status(): Promise<ProcessStatus>;
     /** Buffer the stdout until EOF and return it as `Uint8Array`.
      *
@@ -1892,14 +1901,45 @@ declare namespace Deno {
     stderrOutput(): Promise<Uint8Array>;
     close(): void;
 
-    /** **UNSTABLE**: The `signo` argument may change to require the Deno.Signal
-     * enum.
-     *
-     * Send a signal to process. This functionality currently only works on
-     * Linux and Mac OS.
+    /** Send a signal to process.
      */
-    kill(signo: number): void;
+    kill(signo: Signal): void;
   }
+
+  export type Signal =
+    | "SIGABRT"
+    | "SIGALRM"
+    | "SIGBUS"
+    | "SIGCHLD"
+    | "SIGCONT"
+    | "SIGEMT"
+    | "SIGFPE"
+    | "SIGHUP"
+    | "SIGILL"
+    | "SIGINFO"
+    | "SIGINT"
+    | "SIGIO"
+    | "SIGKILL"
+    | "SIGPIPE"
+    | "SIGPROF"
+    | "SIGPWR"
+    | "SIGQUIT"
+    | "SIGSEGV"
+    | "SIGSTKFLT"
+    | "SIGSTOP"
+    | "SIGSYS"
+    | "SIGTERM"
+    | "SIGTRAP"
+    | "SIGTSTP"
+    | "SIGTTIN"
+    | "SIGTTOU"
+    | "SIGURG"
+    | "SIGUSR1"
+    | "SIGUSR2"
+    | "SIGVTALRM"
+    | "SIGWINCH"
+    | "SIGXCPU"
+    | "SIGXFSZ";
 
   export type ProcessStatus =
     | {
@@ -1938,8 +1978,18 @@ declare namespace Deno {
    * Subprocess uses same working directory as parent process unless `opt.cwd`
    * is specified.
    *
+   * Environmental variables from parent process can be cleared using `opt.clearEnv`.
+   * Doesn't guarantee that only `opt.env` variables are present,
+   * as the OS may set environmental variables for processes.
+   *
    * Environmental variables for subprocess can be specified using `opt.env`
    * mapping.
+   *
+   * `opt.uid` sets the child process’s user ID. This translates to a setuid call
+   * in the child process. Failure in the setuid call will cause the spawn to fail.
+   *
+   * `opt.gid` is similar to `opt.uid`, but sets the group ID of the child process.
+   * This has the same semantics as the uid field.
    *
    * By default subprocess inherits stdio of parent process. To change that
    * `opt.stdout`, `opt.stderr` and `opt.stdin` can be specified independently -
@@ -2019,24 +2069,24 @@ declare namespace Deno {
   export function inspect(value: unknown, options?: InspectOptions): string;
 
   /** The name of a "powerful feature" which needs permission. */
-  export type PermissionName = "run" | "read" | "write" | "net" | "env" | "plugin" | "hrtime";
+  export type PermissionName = "run" | "read" | "write" | "net" | "env" | "ffi" | "hrtime";
 
   /** The current status of the permission. */
   export type PermissionState = "granted" | "denied" | "prompt";
 
   export interface RunPermissionDescriptor {
     name: "run";
-    command?: string;
+    command?: string | URL;
   }
 
   export interface ReadPermissionDescriptor {
     name: "read";
-    path?: string;
+    path?: string | URL;
   }
 
   export interface WritePermissionDescriptor {
     name: "write";
-    path?: string;
+    path?: string | URL;
   }
 
   export interface NetPermissionDescriptor {
@@ -2054,8 +2104,8 @@ declare namespace Deno {
     variable?: string;
   }
 
-  export interface PluginPermissionDescriptor {
-    name: "plugin";
+  export interface FfiPermissionDescriptor {
+    name: "ffi";
   }
 
   export interface HrtimePermissionDescriptor {
@@ -2070,7 +2120,7 @@ declare namespace Deno {
     | WritePermissionDescriptor
     | NetPermissionDescriptor
     | EnvPermissionDescriptor
-    | PluginPermissionDescriptor
+    | FfiPermissionDescriptor
     | HrtimePermissionDescriptor;
 
   export interface PermissionStatusEventMap {
@@ -2305,6 +2355,186 @@ declare namespace Deno {
    * ```
    */
   export function fstat(rid: number): Promise<FileInfo>;
+
+  export interface RequestEvent {
+    readonly request: Request;
+    respondWith(r: Response | Promise<Response>): Promise<void>;
+  }
+
+  export interface HttpConn extends AsyncIterable<RequestEvent> {
+    readonly rid: number;
+
+    nextRequest(): Promise<RequestEvent | null>;
+    close(): void;
+  }
+
+  /**
+   * Services HTTP requests given a TCP or TLS socket.
+   *
+   * ```ts
+   * const conn = await Deno.listen({ port: 80 });
+   * const httpConn = Deno.serveHttp(await conn.accept());
+   * const e = await httpConn.nextRequest();
+   * if (e) {
+   *   e.respondWith(new Response("Hello World"));
+   * }
+   * ```
+   *
+   * If `httpConn.nextRequest()` encounters an error or returns `null`
+   * then the underlying HttpConn resource is closed automatically.
+   *
+   * Alternatively, you can also use the Async Iterator approach:
+   *
+   * ```ts
+   * async function handleHttp(conn: Deno.Conn) {
+   *   for await (const e of Deno.serveHttp(conn)) {
+   *     e.respondWith(new Response("Hello World"));
+   *   }
+   * }
+   *
+   * for await (const conn of Deno.listen({ port: 80 })) {
+   *   handleHttp(conn);
+   * }
+   * ```
+   */
+  export function serveHttp(conn: Conn): HttpConn;
+
+  export interface WebSocketUpgrade {
+    response: Response;
+    socket: WebSocket;
+  }
+
+  export interface UpgradeWebSocketOptions {
+    protocol?: string;
+  }
+
+  /**
+   * Used to upgrade an incoming HTTP request to a WebSocket.
+   *
+   * Given a request, returns a pair of WebSocket and Response. The original
+   * request must be responded to with the returned response for the websocket
+   * upgrade to be successful.
+   *
+   * ```ts
+   * const conn = await Deno.listen({ port: 80 });
+   * const httpConn = Deno.serveHttp(await conn.accept());
+   * const e = await httpConn.nextRequest();
+   * if (e) {
+   *   const { socket, response } = Deno.upgradeWebSocket(e.request);
+   *   socket.onopen = () => {
+   *     socket.send("Hello World!");
+   *   };
+   *   socket.onmessage = (e) => {
+   *     console.log(e.data);
+   *     socket.close();
+   *   };
+   *   socket.onclose = () => console.log("WebSocket has been closed.");
+   *   socket.onerror = (e) => console.error("WebSocket error:", e);
+   *   e.respondWith(response);
+   * }
+   * ```
+   *
+   * If the request body is disturbed (read from) before the upgrade is
+   * completed, upgrading fails.
+   *
+   * This operation does not yet consume the request or open the websocket. This
+   * only happens once the returned response has been passed to `respondWith`.
+   */
+  export function upgradeWebSocket(
+    request: Request,
+    options?: UpgradeWebSocketOptions,
+  ): WebSocketUpgrade;
+
+  /** Send a signal to process under given `pid`.
+   *
+   * If `pid` is negative, the signal will be sent to the process group
+   * identified by `pid`.
+   *
+   *      const p = Deno.run({
+   *        cmd: ["sleep", "10000"]
+   *      });
+   *
+   *      Deno.kill(p.pid, "SIGINT");
+   *
+   * Requires `allow-run` permission. */
+  export function kill(pid: number, signo: Signal): void;
+
+  /** The type of the resource record.
+   * Only the listed types are supported currently. */
+  export type RecordType = "A" | "AAAA" | "ANAME" | "CNAME" | "MX" | "PTR" | "SRV" | "TXT";
+
+  export interface ResolveDnsOptions {
+    /** The name server to be used for lookups.
+     * If not specified, defaults to the system configuration e.g. `/etc/resolv.conf` on Unix. */
+    nameServer?: {
+      /** The IP address of the name server */
+      ipAddr: string;
+      /** The port number the query will be sent to.
+       * If not specified, defaults to 53. */
+      port?: number;
+    };
+  }
+
+  /** If `resolveDns` is called with "MX" record type specified, it will return an array of this interface. */
+  export interface MXRecord {
+    preference: number;
+    exchange: string;
+  }
+
+  /** If `resolveDns` is called with "SRV" record type specified, it will return an array of this interface. */
+  export interface SRVRecord {
+    priority: number;
+    weight: number;
+    port: number;
+    target: string;
+  }
+
+  export function resolveDns(
+    query: string,
+    recordType: "A" | "AAAA" | "ANAME" | "CNAME" | "PTR",
+    options?: ResolveDnsOptions,
+  ): Promise<string[]>;
+
+  export function resolveDns(
+    query: string,
+    recordType: "MX",
+    options?: ResolveDnsOptions,
+  ): Promise<MXRecord[]>;
+
+  export function resolveDns(
+    query: string,
+    recordType: "SRV",
+    options?: ResolveDnsOptions,
+  ): Promise<SRVRecord[]>;
+
+  export function resolveDns(
+    query: string,
+    recordType: "TXT",
+    options?: ResolveDnsOptions,
+  ): Promise<string[][]>;
+
+  /**
+   * Performs DNS resolution against the given query, returning resolved records.
+   * Fails in the cases such as:
+   * - the query is in invalid format
+   * - the options have an invalid parameter, e.g. `nameServer.port` is beyond the range of 16-bit unsigned integer
+   * - timed out
+   *
+   * ```ts
+   * const a = await Deno.resolveDns("example.com", "A");
+   *
+   * const aaaa = await Deno.resolveDns("example.com", "AAAA", {
+   *   nameServer: { ipAddr: "8.8.8.8", port: 53 },
+   * });
+   * ```
+   *
+   * Requires `allow-net` permission.
+   */
+  export function resolveDns(
+    query: string,
+    recordType: RecordType,
+    options?: ResolveDnsOptions,
+  ): Promise<string[] | MXRecord[] | SRVRecord[] | string[][]>;
 }
 
 // Copyright 2018-2021 the Deno authors. All rights reserved. MIT license.
@@ -2424,7 +2654,6 @@ declare class URLSearchParams {
    *   console.log(value, key, parent);
    * });
    * ```
-   *
    */
   forEach(callbackfn: (value: string, key: string, parent: this) => void, thisArg?: any): void;
 
@@ -2505,6 +2734,142 @@ declare class URL {
   readonly searchParams: URLSearchParams;
   username: string;
   toJSON(): string;
+}
+
+declare interface URLPatternInit {
+  protocol?: string;
+  username?: string;
+  password?: string;
+  hostname?: string;
+  port?: string;
+  pathname?: string;
+  search?: string;
+  hash?: string;
+  baseURL?: string;
+}
+
+declare type URLPatternInput = string | URLPatternInit;
+
+declare interface URLPatternComponentResult {
+  input: string;
+  groups: Record<string, string>;
+}
+
+/** `URLPatternResult` is the object returned from `URLPattern.match`. */
+declare interface URLPatternResult {
+  /** The inputs provided when matching. */
+  inputs: [URLPatternInit] | [URLPatternInit, string];
+
+  /** The matched result for the `protocol` matcher. */
+  protocol: URLPatternComponentResult;
+  /** The matched result for the `username` matcher. */
+  username: URLPatternComponentResult;
+  /** The matched result for the `password` matcher. */
+  password: URLPatternComponentResult;
+  /** The matched result for the `hostname` matcher. */
+  hostname: URLPatternComponentResult;
+  /** The matched result for the `port` matcher. */
+  port: URLPatternComponentResult;
+  /** The matched result for the `pathname` matcher. */
+  pathname: URLPatternComponentResult;
+  /** The matched result for the `search` matcher. */
+  search: URLPatternComponentResult;
+  /** The matched result for the `hash` matcher. */
+  hash: URLPatternComponentResult;
+}
+
+/**
+ * The URLPattern API provides a web platform primitive for matching URLs based
+ * on a convenient pattern syntax.
+ *
+ * The syntax is based on path-to-regexp. Wildcards, named capture groups,
+ * regular groups, and group modifiers are all supported.
+ *
+ * ```ts
+ * // Specify the pattern as structured data.
+ * const pattern = new URLPattern({ pathname: "/users/:user" });
+ * const match = pattern.match("/users/joe");
+ * console.log(match.pathname.groups.user); // joe
+ * ```
+ *
+ * ```ts
+ * // Specify a fully qualified string pattern.
+ * const pattern = new URLPattern("https://example.com/books/:id");
+ * console.log(pattern.test("https://example.com/books/123")); // true
+ * console.log(pattern.test("https://deno.land/books/123")); // false
+ * ```
+ *
+ * ```ts
+ * // Specify a relative string pattern with a base URL.
+ * const pattern = new URLPattern("/:article", "https://blog.example.com");
+ * console.log(pattern.test("https://blog.example.com/article")); // true
+ * console.log(pattern.test("https://blog.example.com/article/123")); // false
+ * ```
+ */
+declare class URLPattern {
+  constructor(input: URLPatternInput, baseURL?: string);
+
+  /**
+   * Test if the given input matches the stored pattern.
+   *
+   * The input can either be provided as a url string (with an optional base),
+   * or as individual components in the form of an object.
+   *
+   * ```ts
+   * const pattern = new URLPattern("https://example.com/books/:id");
+   *
+   * // Test a url string.
+   * console.log(pattern.test("https://example.com/books/123")); // true
+   *
+   * // Test a relative url with a base.
+   * console.log(pattern.test("/books/123", "https://example.com")); // true
+   *
+   * // Test an object of url components.
+   * console.log(pattern.test({ pathname: "/books/123" })); // true
+   * ```
+   */
+  test(input: URLPatternInput, baseURL?: string): boolean;
+
+  /**
+   * Match the given input against the stored pattern.
+   *
+   * The input can either be provided as a url string (with an optional base),
+   * or as individual components in the form of an object.
+   *
+   * ```ts
+   * const pattern = new URLPattern("https://example.com/books/:id");
+   *
+   * // Match a url string.
+   * let match = pattern.match("https://example.com/books/123");
+   * console.log(match.pathname.groups.id); // 123
+   *
+   * // Match a relative url with a base.
+   * match = pattern.match("/books/123", "https://example.com");
+   * console.log(match.pathname.groups.id); // 123
+   *
+   * // Match an object of url components.
+   * match = pattern.match({ pathname: "/books/123" });
+   * console.log(match.pathname.groups.id); // 123
+   * ```
+   */
+  exec(input: URLPatternInput, baseURL?: string): URLPatternResult | null;
+
+  /** The pattern string for the `protocol`. */
+  readonly protocol: string;
+  /** The pattern string for the `username`. */
+  readonly username: string;
+  /** The pattern string for the `password`. */
+  readonly password: string;
+  /** The pattern string for the `hostname`. */
+  readonly hostname: string;
+  /** The pattern string for the `port`. */
+  readonly port: string;
+  /** The pattern string for the `pathname`. */
+  readonly pathname: string;
+  /** The pattern string for the `search`. */
+  readonly search: string;
+  /** The pattern string for the `hash`. */
+  readonly hash: string;
 }
 
 // Copyright 2018-2021 the Deno authors. All rights reserved. MIT license.
@@ -3167,7 +3532,15 @@ declare class MessageEvent<T = any> extends Event {
 
 type Transferable = ArrayBuffer | MessagePort;
 
-interface PostMessageOptions {
+/**
+ * @deprecated
+ *
+ * This type has been renamed to StructuredSerializeOptions. Use that type for
+ * new code.
+ */
+type PostMessageOptions = StructuredSerializeOptions;
+
+interface StructuredSerializeOptions {
   transfer?: Transferable[];
 }
 
@@ -3204,7 +3577,7 @@ declare class MessagePort extends EventTarget {
    * objects or port, or if message could not be cloned.
    */
   postMessage(message: any, transfer: Transferable[]): void;
-  postMessage(message: any, options?: PostMessageOptions): void;
+  postMessage(message: any, options?: StructuredSerializeOptions): void;
   /**
    * Begins dispatching messages received on the port. This is implictly called
    * when assiging a value to `this.onmessage`.
@@ -3231,6 +3604,8 @@ declare class MessagePort extends EventTarget {
     options?: boolean | EventListenerOptions,
   ): void;
 }
+
+declare function structuredClone(value: any, options?: StructuredSerializeOptions): any;
 
 // Copyright 2018-2021 the Deno authors. All rights reserved. MIT license.
 
@@ -3691,8 +4066,11 @@ declare class GPUSupportedLimits {
   maxVertexBufferArrayStride?: number;
   maxInterStageShaderComponents?: number;
   maxComputeWorkgroupStorageSize?: number;
-  maxComputeWorkgroupInvocations?: number;
-  maxComputePerDimensionDispatchSize?: number;
+  maxComputeInvocationsPerWorkgroup?: number;
+  maxComputeWorkgroupSizeX?: number;
+  maxComputeWorkgroupSizeY?: number;
+  maxComputeWorkgroupSizeZ?: number;
+  maxComputeWorkgroupsPerDimension?: number;
 }
 
 declare class GPUSupportedFeatures {
@@ -3714,7 +4092,7 @@ declare class GPU {
 
 declare interface GPURequestAdapterOptions {
   powerPreference?: GPUPowerPreference;
-  forceSoftware?: boolean;
+  forceFallbackAdapter?: boolean;
 }
 
 declare type GPUPowerPreference = "low-power" | "high-performance";
@@ -3723,7 +4101,7 @@ declare class GPUAdapter {
   readonly name: string;
   readonly features: GPUSupportedFeatures;
   readonly limits: GPUSupportedLimits;
-  readonly isSoftware: boolean;
+  readonly isFallbackAdapter: boolean;
 
   requestDevice(descriptor?: GPUDeviceDescriptor): Promise<GPUDevice>;
 }
@@ -3849,8 +4227,8 @@ declare type GPUTextureUsageFlags = number;
 declare class GPUTextureUsage {
   static COPY_SRC: 0x01;
   static COPY_DST: 0x02;
-  static SAMPLED: 0x04;
-  static STORAGE: 0x08;
+  static TEXTURE_BINDING: 0x04;
+  static STORAGE_BINDING: 0x08;
   static RENDER_ATTACHMENT: 0x10;
 }
 
@@ -4009,13 +4387,7 @@ declare interface GPUTextureBindingLayout {
 
 declare type GPUTextureSampleType = "float" | "unfilterable-float" | "depth" | "sint" | "uint";
 
-declare interface GPUTextureBindingLayout {
-  sampleType?: GPUTextureSampleType;
-  viewDimension?: GPUTextureViewDimension;
-  multisampled?: boolean;
-}
-
-declare type GPUStorageTextureAccess = "read-only" | "write-only";
+declare type GPUStorageTextureAccess = "write-only";
 
 declare interface GPUStorageTextureBindingLayout {
   access: GPUStorageTextureAccess;
@@ -4073,7 +4445,7 @@ declare class GPUShaderModule implements GPUObjectBase {
 }
 
 declare interface GPUShaderModuleDescriptor extends GPUObjectDescriptorBase {
-  code: string | Uint32Array;
+  code: string;
   sourceMap?: any;
 }
 
@@ -4254,7 +4626,7 @@ declare type GPUVertexFormat =
   | "sint32x2"
   | "sint32x3"
   | "sint32x4";
-declare type GPUInputStepMode = "vertex" | "instance";
+declare type GPUVertexStepMode = "vertex" | "instance";
 
 declare interface GPUVertexState extends GPUProgrammableStage {
   buffers?: (GPUVertexBufferLayout | null)[];
@@ -4262,7 +4634,7 @@ declare interface GPUVertexState extends GPUProgrammableStage {
 
 declare interface GPUVertexBufferLayout {
   arrayStride: number;
-  stepMode?: GPUInputStepMode;
+  stepMode?: GPUVertexStepMode;
   attributes: GPUVertexAttribute[];
 }
 
@@ -4566,10 +4938,15 @@ declare class GPURenderBundleEncoder
   finish(descriptor?: GPURenderBundleDescriptor): GPURenderBundle;
 }
 
-declare interface GPURenderBundleEncoderDescriptor extends GPUObjectDescriptorBase {
+declare interface GPURenderPassLayout extends GPUObjectDescriptorBase {
   colorFormats: GPUTextureFormat[];
   depthStencilFormat?: GPUTextureFormat;
   sampleCount?: number;
+}
+
+declare interface GPURenderBundleEncoderDescriptor extends GPURenderPassLayout {
+  depthReadOnly?: boolean;
+  stencilReadOnly?: boolean;
 }
 
 declare class GPUQueue implements GPUObjectBase {
@@ -4853,8 +5230,40 @@ type KeyUsage =
   | "unwrapKey"
   | "verify"
   | "wrapKey";
-
+type KeyFormat = "jwk" | "pkcs8" | "raw" | "spki";
 type NamedCurve = string;
+
+interface RsaOtherPrimesInfo {
+  d?: string;
+  r?: string;
+  t?: string;
+}
+
+interface JsonWebKey {
+  alg?: string;
+  crv?: string;
+  d?: string;
+  dp?: string;
+  dq?: string;
+  e?: string;
+  ext?: boolean;
+  k?: string;
+  // deno-lint-ignore camelcase
+  key_ops?: string[];
+  kty?: string;
+  n?: string;
+  oth?: RsaOtherPrimesInfo[];
+  p?: string;
+  q?: string;
+  qi?: string;
+  use?: string;
+  x?: string;
+  y?: string;
+}
+
+interface AesCbcParams extends Algorithm {
+  iv: BufferSource;
+}
 
 interface HmacKeyGenParams extends Algorithm {
   hash: HashAlgorithmIdentifier;
@@ -4869,6 +5278,10 @@ interface EcdsaParams extends Algorithm {
   hash: HashAlgorithmIdentifier;
 }
 
+interface RsaHashedImportParams extends Algorithm {
+  hash: HashAlgorithmIdentifier;
+}
+
 interface RsaHashedKeyGenParams extends RsaKeyGenParams {
   hash: HashAlgorithmIdentifier;
 }
@@ -4880,6 +5293,61 @@ interface RsaKeyGenParams extends Algorithm {
 
 interface RsaPssParams extends Algorithm {
   saltLength: number;
+}
+
+interface RsaOaepParams extends Algorithm {
+  label?: Uint8Array;
+}
+
+interface HmacImportParams extends Algorithm {
+  hash: HashAlgorithmIdentifier;
+  length?: number;
+}
+
+interface EcKeyAlgorithm extends KeyAlgorithm {
+  namedCurve: NamedCurve;
+}
+
+interface HmacKeyAlgorithm extends KeyAlgorithm {
+  hash: KeyAlgorithm;
+  length: number;
+}
+
+interface RsaHashedKeyAlgorithm extends RsaKeyAlgorithm {
+  hash: KeyAlgorithm;
+}
+
+interface RsaKeyAlgorithm extends KeyAlgorithm {
+  modulusLength: number;
+  publicExponent: Uint8Array;
+}
+
+interface HkdfParams extends Algorithm {
+  hash: HashAlgorithmIdentifier;
+  info: BufferSource;
+  salt: BufferSource;
+}
+
+interface Pbkdf2Params extends Algorithm {
+  hash: HashAlgorithmIdentifier;
+  iterations: number;
+  salt: BufferSource;
+}
+
+interface AesDerivedKeyParams extends Algorithm {
+  length: number;
+}
+
+interface EcdhKeyDeriveParams extends Algorithm {
+  public: CryptoKey;
+}
+
+interface AesKeyGenParams extends Algorithm {
+  length: number;
+}
+
+interface AesKeyAlgorithm extends KeyAlgorithm {
+  length: number;
 }
 
 /** The CryptoKey dictionary of the Web Crypto API represents a cryptographic key. */
@@ -4914,7 +5382,7 @@ interface SubtleCrypto {
     keyUsages: KeyUsage[],
   ): Promise<CryptoKeyPair>;
   generateKey(
-    algorithm: HmacKeyGenParams,
+    algorithm: AesKeyGenParams | HmacKeyGenParams,
     extractable: boolean,
     keyUsages: KeyUsage[],
   ): Promise<CryptoKey>;
@@ -4923,64 +5391,66 @@ interface SubtleCrypto {
     extractable: boolean,
     keyUsages: KeyUsage[],
   ): Promise<CryptoKeyPair | CryptoKey>;
+  importKey(
+    format: "jwk",
+    keyData: JsonWebKey,
+    algorithm: AlgorithmIdentifier | HmacImportParams,
+    extractable: boolean,
+    keyUsages: KeyUsage[],
+  ): Promise<CryptoKey>;
+  importKey(
+    format: Exclude<KeyFormat, "jwk">,
+    keyData: BufferSource,
+    algorithm: AlgorithmIdentifier | HmacImportParams | RsaHashedImportParams,
+    extractable: boolean,
+    keyUsages: KeyUsage[],
+  ): Promise<CryptoKey>;
+  exportKey(format: "jwk", key: CryptoKey): Promise<JsonWebKey>;
+  exportKey(format: Exclude<KeyFormat, "jwk">, key: CryptoKey): Promise<ArrayBuffer>;
   sign(
     algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams,
     key: CryptoKey,
-    data:
-      | Int8Array
-      | Int16Array
-      | Int32Array
-      | Uint8Array
-      | Uint16Array
-      | Uint32Array
-      | Uint8ClampedArray
-      | Float32Array
-      | Float64Array
-      | DataView
-      | ArrayBuffer,
+    data: BufferSource,
   ): Promise<ArrayBuffer>;
   verify(
-    algorithm: AlgorithmIdentifier | RsaPssParams,
+    algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams,
     key: CryptoKey,
-    signature:
-      | Int8Array
-      | Int16Array
-      | Int32Array
-      | Uint8Array
-      | Uint16Array
-      | Uint32Array
-      | Uint8ClampedArray
-      | Float32Array
-      | Float64Array
-      | DataView
-      | ArrayBuffer,
-    data:
-      | Int8Array
-      | Int16Array
-      | Int32Array
-      | Uint8Array
-      | Uint16Array
-      | Uint32Array
-      | Uint8ClampedArray
-      | Float32Array
-      | Float64Array
-      | DataView
-      | ArrayBuffer,
+    signature: BufferSource,
+    data: BufferSource,
   ): Promise<boolean>;
-  digest(
-    algorithm: AlgorithmIdentifier,
-    data:
-      | Int8Array
-      | Int16Array
-      | Int32Array
-      | Uint8Array
-      | Uint16Array
-      | Uint32Array
-      | Uint8ClampedArray
-      | Float32Array
-      | Float64Array
-      | DataView
-      | ArrayBuffer,
+  digest(algorithm: AlgorithmIdentifier, data: BufferSource): Promise<ArrayBuffer>;
+  encrypt(
+    algorithm: AlgorithmIdentifier | RsaOaepParams | AesCbcParams,
+    key: CryptoKey,
+    data: BufferSource,
+  ): Promise<ArrayBuffer>;
+  decrypt(
+    algorithm: AlgorithmIdentifier | RsaOaepParams | AesCbcParams,
+    key: CryptoKey,
+    data: BufferSource,
+  ): Promise<ArrayBuffer>;
+  deriveBits(
+    algorithm: AlgorithmIdentifier | HkdfParams | Pbkdf2Params | EcdhKeyDeriveParams,
+    baseKey: CryptoKey,
+    length: number,
+  ): Promise<ArrayBuffer>;
+  deriveKey(
+    algorithm: AlgorithmIdentifier | HkdfParams | Pbkdf2Params,
+    baseKey: CryptoKey,
+    derivedKeyType:
+      | AlgorithmIdentifier
+      | AesDerivedKeyParams
+      | HmacImportParams
+      | HkdfParams
+      | Pbkdf2Params,
+    extractable: boolean,
+    keyUsages: KeyUsage[],
+  ): Promise<CryptoKey>;
+  wrapKey(
+    format: KeyFormat,
+    key: CryptoKey,
+    wrappingKey: CryptoKey,
+    wrapAlgorithm: AlgorithmIdentifier | RsaOaepParams,
   ): Promise<ArrayBuffer>;
 }
 
@@ -5003,10 +5473,6 @@ declare interface Crypto {
     array: T,
   ): T;
   randomUUID(): string;
-}
-
-interface Algorithm {
-  name: string;
 }
 
 declare var SubtleCrypto: {
@@ -5121,7 +5587,12 @@ declare namespace Deno {
     /** The port to listen on. */
     port: number;
     /** A literal IP address or host name that can be resolved to an IP address.
-     * If not specified, defaults to `0.0.0.0`. */
+     * If not specified, defaults to `0.0.0.0`.
+     *
+     * __Note about `0.0.0.0`__ While listening `0.0.0.0` works on all platforms,
+     * the browsers on Windows don't work with the address `0.0.0.0`.
+     * You should show the message like `server running on localhost:8080` instead of
+     * `server running on 0.0.0.0:8080` if your program supports Windows. */
     hostname?: string;
   }
 
@@ -5138,9 +5609,10 @@ declare namespace Deno {
   export function listen(options: ListenOptions & { transport?: "tcp" }): Listener;
 
   export interface ListenTlsOptions extends ListenOptions {
-    /** Server certificate file. */
+    /** Path to a file containing a PEM formatted CA certificate. Requires
+     * `--allow-read`. */
     certFile: string;
-    /** Server public key file. */
+    /** Server public key file. Requires `--allow-read`.*/
     keyFile: string;
 
     transport?: "tcp";
@@ -5185,8 +5657,18 @@ declare namespace Deno {
     /** A literal IP address or host name that can be resolved to an IP address.
      * If not specified, defaults to `127.0.0.1`. */
     hostname?: string;
-    /** Server certificate file. */
+    /**
+     * @deprecated This option is deprecated and will be removed in a future
+     * release.
+     *
+     * Server certificate file.
+     */
     certFile?: string;
+    /** A list of root certificates that will be used in addition to the
+     * default root certificates to verify the peer's certificate.
+     *
+     * Must be in PEM format. */
+    caCerts?: string[];
   }
 
   /** Establishes a secure connection over TLS (transport layer security) using
@@ -5195,10 +5677,11 @@ declare namespace Deno {
    * be used (see also https://github.com/ctz/webpki-roots for specifics)
    *
    * ```ts
+   * const caCert = await Deno.readTextFile("./certs/my_custom_root_CA.pem");
    * const conn1 = await Deno.connectTls({ port: 80 });
-   * const conn2 = await Deno.connectTls({ certFile: "./certs/my_custom_root_CA.pem", hostname: "192.0.2.1", port: 80 });
+   * const conn2 = await Deno.connectTls({ caCerts: [caCert], hostname: "192.0.2.1", port: 80 });
    * const conn3 = await Deno.connectTls({ hostname: "[2001:db8::1]", port: 80 });
-   * const conn4 = await Deno.connectTls({ certFile: "./certs/my_custom_root_CA.pem", hostname: "golang.org", port: 80});
+   * const conn4 = await Deno.connectTls({ caCerts: [caCert], hostname: "golang.org", port: 80});
    * ```
    *
    * Requires `allow-net` permission.
@@ -5331,7 +5814,7 @@ declare namespace WebAssembly {
     /**
      * Given a `Module` and string, returns a copy of the contents of all custom sections in the
      * module with the given string name.
-     * */
+     */
     static customSections(moduleObject: Module, sectionName: string): ArrayBuffer[];
 
     /** Given a `Module`, returns an array containing descriptions of all the declared exports. */
@@ -5620,7 +6103,7 @@ declare class Worker extends EventTarget {
   onmessageerror?: (e: MessageEvent) => void;
   constructor(specifier: string | URL, options?: WorkerOptions);
   postMessage(message: any, transfer: Transferable[]): void;
-  postMessage(message: any, options?: PostMessageOptions): void;
+  postMessage(message: any, options?: StructuredSerializeOptions): void;
   addEventListener<K extends keyof WorkerEventMap>(
     type: K,
     listener: (this: Worker, ev: WorkerEventMap[K]) => any,
@@ -5696,7 +6179,7 @@ declare interface PerformanceMeasureOptions {
   detail?: any;
 
   /** Timestamp to be used as the start time or string to be used as start
-   * mark.*/
+   * mark. */
   start?: string | number;
 
   /** Duration between the start and end times. */
@@ -5794,6 +6277,7 @@ declare var sessionStorage: Storage;
 declare class Navigator {
   constructor();
   readonly gpu: GPU;
+  readonly hardwareConcurrency: number;
 }
 
 declare var navigator: Navigator;

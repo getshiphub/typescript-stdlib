@@ -26,7 +26,7 @@ class StdioWriter {
       const n = await this.#w.write(p);
       return Result.success(n);
     } catch (e) {
-      return Result.failure(errors.fromJSError(e));
+      return Result.failure(errors.fromJSError(e as Error));
     }
   }
 
@@ -35,7 +35,7 @@ class StdioWriter {
     try {
       return Result.success(this.#w.writeSync(p));
     } catch (e) {
-      return Result.failure(errors.fromJSError(e));
+      return Result.failure(errors.fromJSError(e as Error));
     }
   }
 }
