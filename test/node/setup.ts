@@ -25,13 +25,8 @@ interface Failable {
 expect.extend({
   // eslint-disable-next-line @typescript-eslint/ban-types
   toPanic(received: Function, expected: unknown): jest.CustomMatcherResult {
-    const {
-      matcherErrorMessage,
-      matcherHint,
-      printExpected,
-      printReceived,
-      printWithType,
-    } = this.utils;
+    const { matcherErrorMessage, matcherHint, printExpected, printReceived, printWithType } =
+      this.utils;
 
     // Make sure expected is a string if it is present
     if (expected !== undefined && typeof expected !== "string") {
@@ -62,7 +57,7 @@ expect.extend({
       try {
         received();
       } catch (e) {
-        thrown = e;
+        thrown = e as Error;
       }
     }
 

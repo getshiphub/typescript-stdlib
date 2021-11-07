@@ -131,12 +131,11 @@ export function parse(s: string): Result<Map<string, string>, error> {
 }
 
 function readFile(filename: string): Result<Map<string, string>, error> {
-  // eslint-disable-next-line no-restricted-syntax
-  try {
-    return parse(runtime.readTextFileSync(filename));
-  } catch (e) {
-    return Result.failure(errors.fromJSError(e));
+  const result = Result.of(() => runtime.readTextFileSync(filename));
+  if (result.isFailure()) {
+    return Result.failure(errors.fromJSError(result.failure()));
   }
+  return parse(result.success());
 }
 
 function filenamesOrDefault(filenames: string[]): string[] {
