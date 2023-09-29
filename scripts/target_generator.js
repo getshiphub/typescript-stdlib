@@ -3,7 +3,6 @@
 const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const rimraf = require("rimraf");
 const ts = require("typescript");
 
 const supportedTargets = new Set(["deno", "node"]);
@@ -304,7 +303,7 @@ const transformer = (context) => {
 };
 
 // Delete any old files
-rimraf.sync(dstDir);
+fs.rmSync(dstDir, { recursive: true, force: true });
 fs.mkdirSync(dstDir, { recursive: true });
 
 // Generate target files

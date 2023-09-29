@@ -22,7 +22,7 @@
     "dist/node/"
   ],
   "engines": {
-    "node": ">= 12.10.0"
+    "node": ">= 20.0.0"
   },
   "publishConfig": {
     "access": "public",
@@ -33,7 +33,7 @@
     "build:node": "node scripts/target_generator.js node",
     "build": "yarn build:deno && yarn build:node",
     "check-types": "tsc",
-    "clean": "rimraf dist && rimraf coverage && rimraf .deno-release",
+    "clean": "node scripts/clean.mjs",
     "deno-release": "node scripts/deno_release.js",
     "e2e:deno": "deno run e2e/smoke_deno.ts",
     "e2e": "yarn e2e:deno",
@@ -57,22 +57,20 @@
   },
   "devDependencies": {
     "@shiphub/eslint-config": "^0.0.3",
-    "@types/jest": "^27.0.2",
-    "@types/node": "^14.14.37",
-    "@types/rimraf": "^3.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.3.0",
-    "@typescript-eslint/parser": "^5.3.0",
-    "eslint": "^8.2.0",
-    "eslint-import-resolver-typescript": "^2.5.0",
-    "eslint-plugin-import": "^2.25.2",
-    "husky": "^7.0.4",
-    "jest": "^27.3.1",
-    "lint-staged": "^11.2.6",
-    "prettier": "^2.4.1",
-    "release-it": "^14.11.6",
-    "rimraf": "^3.0.2",
-    "ts-jest": "^27.0.7",
-    "typescript": "^4.4.4"
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.7.1",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "eslint": "^8.50.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.28.1",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.3",
+    "release-it": "^16.2.1",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
   },
   "eslintConfig": {
     "extends": [
