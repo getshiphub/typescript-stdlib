@@ -245,7 +245,7 @@ for (const m of target.modules) {
 /** @type {ts.TransformerFactory<ts.SourceFile>} */
 const transformer = (context) => {
   return (sourceFile) => {
-    /** @type {(node: ts.Node) => ts.Node | undefined} */
+    /** @type {ts.Visitor} */
     const visitor = (node) => {
       // Add .ts extension to imports
       if (ts.isImportDeclaration(node)) {
@@ -264,10 +264,10 @@ const transformer = (context) => {
 
         return context.factory.updateImportDeclaration(
           node,
-          node.decorators,
           node.modifiers,
           node.importClause,
           context.factory.createStringLiteral(`${module}.ts`, false),
+          undefined,
         );
       }
 
@@ -280,11 +280,11 @@ const transformer = (context) => {
         const module = node.moduleSpecifier.text;
         return context.factory.updateExportDeclaration(
           node,
-          node.decorators,
           node.modifiers,
           false,
           node.exportClause,
           context.factory.createStringLiteral(`${module}.ts`, false),
+          undefined,
         );
       }
 
@@ -298,7 +298,7 @@ const transformer = (context) => {
       return ts.visitEachChild(node, visitor, context);
     };
 
-    return ts.visitNode(sourceFile, visitor);
+    return ts.visitEachChild(sourceFile, visitor, context);
   };
 };
 

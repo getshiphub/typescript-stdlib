@@ -7,6 +7,7 @@
 
 import { readFileSync } from "fs";
 import { isatty } from "tty";
+import type { URL } from "url";
 import { inspect } from "util";
 import type { Runtime } from "./runtime";
 
