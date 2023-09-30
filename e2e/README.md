@@ -2,7 +2,7 @@
 
 Basic end-to-end tests to verify the standard library works properly. These are all simple scripts that can be run with either `deno` or `node`.
 
-These can be run by running `yarn e2e`.
+These can be run by running `pnpm run e2e`.
 
 ### `smoke_deno.ts`
 

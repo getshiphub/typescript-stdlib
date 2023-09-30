@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+
 import { colors, errors, log, util } from "../../../src";
 
 const isoRegex = `\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d+([+-][0-2]\\d:[0-5]\\d|Z)`;
@@ -24,7 +26,7 @@ describe("log/formatter.ts", () => {
       });
       const f = new log.JSONFormatter();
       const s = bufToString(f.format(l).unwrap());
-      const json = JSON.parse(s);
+      const json: unknown = JSON.parse(s);
 
       expect(json).toEqual({
         time: l.date.toISOString(),
@@ -44,7 +46,7 @@ describe("log/formatter.ts", () => {
       });
       const f = new log.JSONFormatter();
       const s = bufToString(f.format(l).unwrap());
-      const json = JSON.parse(s);
+      const json: unknown = JSON.parse(s);
 
       expect(json).toEqual({
         time: l.date.toISOString(),
@@ -72,7 +74,7 @@ describe("log/formatter.ts", () => {
         ]),
       });
       const s = bufToString(f.format(l).unwrap());
-      const json = JSON.parse(s);
+      const json: unknown = JSON.parse(s);
 
       expect(json).toEqual({
         "@time": l.date.toISOString(),
@@ -93,7 +95,7 @@ describe("log/formatter.ts", () => {
       });
       const f = new log.JSONFormatter();
       const s = bufToString(f.format(l).unwrap());
-      const json = JSON.parse(s);
+      const json: unknown = JSON.parse(s);
 
       expect(json).toEqual({
         time: l.date.toISOString(),
@@ -115,7 +117,7 @@ describe("log/formatter.ts", () => {
         dataKey: "props",
       });
       const s = bufToString(f.format(l).unwrap());
-      const json = JSON.parse(s);
+      const json: unknown = JSON.parse(s);
 
       expect(json).toEqual({
         time: l.date.toISOString(),

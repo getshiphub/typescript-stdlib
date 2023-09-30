@@ -5,6 +5,8 @@
 // Copyright 2009 The Go Authors. All rights reserved. BSD license.
 // https://github.com/golang/go/blob/master/LICENSE
 
+/* eslint-disable @typescript-eslint/prefer-for-of */
+
 import { IncomingHttpHeaders } from "http";
 import net from "net";
 import * as log from "../log/mod";
@@ -114,7 +116,7 @@ function sanitizeCookieValue(v: string): string {
     return s;
   }
 
-  if (s.indexOf(" ") >= 0 || s.indexOf(",") >= 0) {
+  if (s.includes(" ") || s.includes(",")) {
     return `"${s}"`;
   }
 
@@ -139,7 +141,7 @@ function isCookieDomainName(s: string): boolean {
     return false;
   }
 
-  if (n[0] === ".") {
+  if (n.startsWith(".")) {
     // domain may start with a leading dot
     n = n.slice(1);
   }
@@ -200,7 +202,7 @@ function validCookieDomain(v: string): boolean {
 function parseCookieValue(raw: string, allowDoubleQuote: boolean): [string, boolean] {
   // strip the quotes, if present
   let v = raw;
-  if (allowDoubleQuote && v.length > 1 && v[0] === `"` && v[v.length - 1] === `"`) {
+  if (allowDoubleQuote && v.length > 1 && v.startsWith(`"`) && v.endsWith(`"`)) {
     v = v.slice(1, v.length - 1);
   }
 
@@ -295,7 +297,7 @@ export class Cookie {
         // into a host-only cookie. A leading dot is okay
         // but won't be sent.
         let d = this.domain;
-        if (d[0] === ".") {
+        if (d.startsWith(".")) {
           d = d.slice(1);
         }
         parts.push(`Domain=${d}`);
@@ -436,7 +438,7 @@ export function readSetCookies(lines: string[]): Cookie[] {
           }
 
           let secs = r.success();
-          if (secs !== 0 && parsedVal[0] === "0") {
+          if (secs !== 0 && parsedVal.startsWith("0")) {
             break;
           }
           if (secs <= 0) {

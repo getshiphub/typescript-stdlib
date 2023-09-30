@@ -1,11 +1,8 @@
-"use strict";
+import cp from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
-const cp = require("child_process");
-const fs = require("fs");
-const path = require("path");
-const rimraf = require("rimraf");
-
-const rootDir = path.resolve(__dirname, "../");
+const rootDir = ".";
 const denoReleaseDir = path.join(rootDir, ".deno-release");
 const repo = "git@github.com:getshiphub/typescript-stdlib.git";
 const branch = "deno-latest";
@@ -47,7 +44,7 @@ function prepare(version) {
 
   // Remove release dir if it already exists
   // TODO(@cszatmary): Could make this smarter in the future by just cleaning & pulling
-  rimraf.sync(denoReleaseDir);
+  fs.rmSync(denoReleaseDir, { recursive: true, force: true });
   exec("git", ["clone", repo, "-b", branch, "--single-branch", denoReleaseDir]);
 
   // Remove all so that we can copy the new ones and avoid any merge conflicts
@@ -57,7 +54,7 @@ function prepare(version) {
       continue;
     }
 
-    rimraf.sync(path.join(denoReleaseDir, f));
+    fs.rmSync(path.join(denoReleaseDir, f), { recursive: true, force: true });
   }
 
   // Copy misc files
@@ -106,6 +103,7 @@ const action = args[0];
 switch (action) {
   case "prepare": {
     const version = args[1];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (version == null) {
       fail("deno_release: release: version required as the second argument");
     }

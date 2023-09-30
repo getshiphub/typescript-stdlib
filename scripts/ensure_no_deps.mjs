@@ -1,14 +1,13 @@
-"use strict";
+import fs from "node:fs";
 
-const fs = require("fs");
-const path = require("path");
-
-const rootDir = path.resolve(__dirname, "../");
-const pkgJSONPath = path.join(rootDir, "package.json");
-
-const data = fs.readFileSync(pkgJSONPath, { encoding: "utf-8" });
+const data = fs.readFileSync("package.json", { encoding: "utf-8" });
+/** @type {unknown} */
 const pkgJSON = JSON.parse(data);
-const { dependencies } = pkgJSON;
+if (typeof pkgJSON !== "object" || pkgJSON == null) {
+  console.error("Error: malformed package.json");
+  process.exit(1);
+}
+const { dependencies } = /** @type {Record<string, unknown>} */ (pkgJSON);
 
 if (typeof dependencies !== "object" || dependencies == null) {
   // No deps field, all good

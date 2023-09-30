@@ -96,11 +96,4 @@ describe("strconv/format.ts", () => {
       expect(strconv.formatFloat(float, "e", prec)).toBe(expected);
     },
   );
-
-  test("strconv.formatFloat: invalid format", () => {
-    expect(() => {
-      // @ts-expect-error: Test invalid argument
-      strconv.formatFloat(1.1, "h");
-    }).toPanic(`formatFloat: invalid fmt "h", must be either "f" or "e"`);
-  });
 });

@@ -40,8 +40,7 @@ export class LookUpError {
 function findExecutableUnix(file: string): Result<void, error> {
   return Result.of(() => fs.statSync(file))
     .mapFailure((e) => errors.fromJSError(e))
-    .flatMap<void>((s) => {
-      // eslint-disable-next-line no-bitwise
+    .flatMap((s) => {
       if (!s.isDirectory() && (s.mode & 0o111) !== 0) {
         return Result.success(undefined);
       }
@@ -76,7 +75,7 @@ function lookPathUnix(file: string): Result<string, error> {
 function chkStatWin(file: string): Result<void, error> {
   return Result.of(() => fs.statSync(file))
     .mapFailure((e) => errors.fromJSError(e))
-    .flatMap<void>((s) => {
+    .flatMap((s) => {
       if (s.isDirectory()) {
         return Result.failure(errPermission);
       }
@@ -114,7 +113,7 @@ function lookPathWin(file: string): Result<string, error> {
         continue;
       }
 
-      if (e[0] !== ".") {
+      if (!e.startsWith(".")) {
         e = `.${e}`;
       }
 

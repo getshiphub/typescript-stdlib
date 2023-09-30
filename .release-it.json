@@ -1,8 +1,8 @@
 {
   "hooks": {
-    "before:init": "yarn prepare-release",
-    "before:release": "yarn deno-release prepare ${version}",
-    "after:release": "yarn deno-release release"
+    "before:init": "pnpm run prepare-release",
+    "before:release": "pnpm run deno-release prepare ${version}",
+    "after:release": "pnpm run deno-release release"
   },
   "git": {
     "requireBranch": "master",

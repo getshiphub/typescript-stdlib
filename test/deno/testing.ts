@@ -1,7 +1,7 @@
-import { AssertionError } from "https://deno.land/std@0.113.0/testing/asserts.ts";
+import { AssertionError } from "https://deno.land/std@0.203.0/assert/mod.ts";
 import { recover, bytes } from "../../dist/deno/mod.ts";
 
-export * from "https://deno.land/std@0.113.0/testing/asserts.ts";
+export * from "https://deno.land/std@0.203.0/assert/mod.ts";
 
 /**
  * assertPanics executes a function, expecting it to panic. If it does not
@@ -44,8 +44,8 @@ export function assertPanics<T = void>(fn: () => T, msgIncludes = "", msg = ""):
 
 export interface SubprocessTestResult {
   code: number;
-  stdoutData: bytes.DynamicBuffer;
-  stderrData: bytes.DynamicBuffer;
+  stdout: bytes.DynamicBuffer;
+  stderr: bytes.DynamicBuffer;
 }
 
 /**
@@ -64,24 +64,17 @@ export async function runSubprocessTest(
 ): Promise<SubprocessTestResult> {
   // Run test as a subprocess
   // Adapted from: https://talks.golang.org/2014/testing.slide#23
-  const p = Deno.run({
-    cmd: [Deno.execPath(), "test", "--allow-env", "--allow-read", "--filter", testName, testPath],
+  const c = new Deno.Command(Deno.execPath(), {
+    args: ["test", "--allow-env", "--allow-read", "--filter", testName, testPath],
     env: {
       ...Deno.env.toObject(),
       ...env,
     },
-    stdout: "piped",
-    stderr: "piped",
   });
-
-  const { code } = await p.status();
-  const stdoutData = await p.output();
-  const stderrData = await p.stderrOutput();
-  p.close();
-
+  const { code, stdout, stderr } = await c.output();
   return {
     code,
-    stdoutData: new bytes.DynamicBuffer(stdoutData),
-    stderrData: new bytes.DynamicBuffer(stderrData),
+    stdout: new bytes.DynamicBuffer(stdout),
+    stderr: new bytes.DynamicBuffer(stderr),
   };
 }

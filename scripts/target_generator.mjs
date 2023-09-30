@@ -1,10 +1,7 @@
-"use strict";
-
-const cp = require("child_process");
-const fs = require("fs");
-const path = require("path");
-const rimraf = require("rimraf");
-const ts = require("typescript");
+import cp from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import ts from "typescript";
 
 const supportedTargets = new Set(["deno", "node"]);
 
@@ -93,8 +90,10 @@ const Action = {
 function parseConfig(rootDir, targetName) {
   const data = fs.readFileSync(path.join(rootDir, "targets.json"), { encoding: "utf-8" });
   /** @type {Config} */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const config = JSON.parse(data);
   const targetConfig = config.targets[targetName];
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (targetConfig === undefined) {
     fail(`No such target: ${targetName}`);
   }
@@ -207,7 +206,7 @@ if (!supportedTargets.has(targetName)) {
   fail(`${targetName} is not a supported target`);
 }
 
-const rootDir = path.resolve(__dirname, "../");
+const rootDir = ".";
 const target = parseConfig(rootDir, targetName);
 const srcDir = path.join(rootDir, "src");
 const dstDir = path.join(rootDir, "dist", target.name);
@@ -246,10 +245,11 @@ for (const m of target.modules) {
 /** @type {ts.TransformerFactory<ts.SourceFile>} */
 const transformer = (context) => {
   return (sourceFile) => {
-    /** @type {(node: ts.Node) => ts.Node | undefined} */
+    /** @type {ts.Visitor} */
     const visitor = (node) => {
       // Add .ts extension to imports
       if (ts.isImportDeclaration(node)) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (node.moduleSpecifier == null || !ts.isStringLiteral(node.moduleSpecifier)) {
           return node;
         }
@@ -265,10 +265,10 @@ const transformer = (context) => {
 
         return context.factory.updateImportDeclaration(
           node,
-          node.decorators,
           node.modifiers,
           node.importClause,
           context.factory.createStringLiteral(`${module}.ts`, false),
+          undefined,
         );
       }
 
@@ -281,11 +281,11 @@ const transformer = (context) => {
         const module = node.moduleSpecifier.text;
         return context.factory.updateExportDeclaration(
           node,
-          node.decorators,
           node.modifiers,
           false,
           node.exportClause,
           context.factory.createStringLiteral(`${module}.ts`, false),
+          undefined,
         );
       }
 
@@ -299,12 +299,12 @@ const transformer = (context) => {
       return ts.visitEachChild(node, visitor, context);
     };
 
-    return ts.visitNode(sourceFile, visitor);
+    return ts.visitEachChild(sourceFile, visitor, context);
   };
 };
 
 // Delete any old files
-rimraf.sync(dstDir);
+fs.rmSync(dstDir, { recursive: true, force: true });
 fs.mkdirSync(dstDir, { recursive: true });
 
 // Generate target files

@@ -24,7 +24,6 @@
     "colors": "*",
     "env": "*",
     "errors": "*",
-    "fs": "node",
     "hex": "*",
     "http": "node",
     "io": "*",

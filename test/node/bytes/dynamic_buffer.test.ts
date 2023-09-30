@@ -275,10 +275,10 @@ describe("bytes/dynamic_buffer.ts", () => {
     expect(buf.length).toBe(0);
   });
 
-  test("bytes.DynamicBuffer: copy", () => {
+  test("bytes.DynamicBuffer: copy", async () => {
     const buf = new bytes.DynamicBuffer("abc");
     const bufCopy = util.copy(buf);
-    bufCopy.writeString("def");
+    await bufCopy.writeString("def");
     expect(buf).not.toBe(bufCopy);
     expect(buf.toString()).toBe("abc");
     expect(bufCopy.toString()).toBe("abcdef");

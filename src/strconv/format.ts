@@ -45,10 +45,6 @@ export function formatInt(i: number, base = 10): string {
  * as many digits as necessary.
  */
 export function formatFloat(f: number, fmt: "f" | "e", prec?: number): string {
-  if (fmt !== "f" && fmt !== "e") {
-    panic(`formatFloat: invalid fmt "${fmt}", must be either "f" or "e"`);
-  }
-
   if (fmt === "f") {
     if (prec === undefined) {
       // toFixed assumes 0 if the arg is omitted which isn't what we want

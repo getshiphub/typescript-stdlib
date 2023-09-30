@@ -205,6 +205,7 @@ Deno.test("Result: map: failure", () => {
 Deno.test("Result: mapFailure: success", () => {
   const r = Result.success<number, string>(10);
   const newR = r.mapFailure((e) => errors.newError(e));
+  // @ts-expect-error Types are intentionally different
   testing.assertNotStrictEquals(newR, r);
   testing.assertEquals(newR.success(), 10);
 });
@@ -213,6 +214,7 @@ Deno.test("Result: mapFailure", () => {
   const err = "Oh no!";
   const r = Result.failure<number, string>(err);
   const newR = r.mapFailure((e) => errors.newError(e));
+  // @ts-expect-error Types are intentionally different
   testing.assertNotStrictEquals(newR, r);
   testing.assertEquals(newR.failure()?.error(), err);
 });
@@ -235,6 +237,7 @@ Deno.test("Result: flatMap: failure", () => {
 Deno.test("Result: flatMapFailure: success", () => {
   const r = Result.success<number, string>(10);
   const newR = r.flatMapFailure((e) => Result.failure(errors.newError(e)));
+  // @ts-expect-error Types are intentionally different
   testing.assertNotStrictEquals(newR, r);
   testing.assertEquals(newR.success(), 10);
 });
@@ -243,6 +246,7 @@ Deno.test("Result: flatMapFailure", () => {
   const err = "Oh no!";
   const r = Result.failure<number, string>(err);
   const newR = r.flatMapFailure((e) => Result.failure(errors.newError(e)));
+  // @ts-expect-error Types are intentionally different
   testing.assertNotStrictEquals(newR, r);
   testing.assertEquals(newR.failure()?.error(), err);
 });

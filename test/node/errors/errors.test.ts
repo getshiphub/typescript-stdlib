@@ -61,6 +61,7 @@ describe("errors", () => {
   });
 
   test("errors.withStack: undefined", () => {
+    // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
     const err = errors.withStack(undefined);
     expect(err).toBeUndefined();
   });
@@ -84,6 +85,7 @@ describe("errors", () => {
   });
 
   test("errors.withMessage: undefined", () => {
+    // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
     const err = errors.withMessage(undefined, "no error");
     expect(err).toBeUndefined();
   });
@@ -110,6 +112,7 @@ describe("errors", () => {
   });
 
   test("errors.wrap: undefined", () => {
+    // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
     const err = errors.wrap(undefined, "no error");
     expect(err).toBeUndefined();
   });
@@ -137,6 +140,7 @@ describe("errors", () => {
   });
 
   test("errors.cause: undefined", () => {
+    // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
     const err = errors.cause(undefined);
     expect(err).toBeUndefined();
   });

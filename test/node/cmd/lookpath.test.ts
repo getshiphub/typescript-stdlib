@@ -1,7 +1,8 @@
+import fs from "fs";
 import os from "os";
 import path from "path";
 
-import { cmd, fs } from "../../../src";
+import { cmd } from "../../../src";
 
 describe("cmd.ts", () => {
   if (/^win/i.test(process.platform)) {
@@ -10,8 +11,8 @@ describe("cmd.ts", () => {
     // This test must by synchronous because it modifies the PATH env var
     test("cmd.lookPath", () => {
       // Create temp dir with a file
-      const tmpDir = fs.mkdtempSync(`${os.tmpdir}${path.sep}`).unwrap();
-      fs.writeFileSync(path.join(tmpDir, "foo"), "", { mode: 0o755 }).unwrap();
+      const tmpDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}`);
+      fs.writeFileSync(path.join(tmpDir, "foo"), "", { mode: 0o755 });
 
       // Add temp dir to path
       const envPath = process.env.PATH;
@@ -21,7 +22,7 @@ describe("cmd.ts", () => {
       expect(r.success()).toBe(`${tmpDir}/foo`);
 
       process.env.PATH = envPath;
-      fs.removeAllSync(tmpDir);
+      fs.rmSync(tmpDir, { recursive: true, force: true });
     });
 
     test("cmd.lookPath: not found", () => {

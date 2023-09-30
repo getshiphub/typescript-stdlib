@@ -30,6 +30,7 @@ function resolveKey(key: string, f: Map<string, string>): string {
 }
 
 // This prevents silently overwriting default fields.
+/* eslint-disable @typescript-eslint/no-dynamic-delete */
 function prefixFieldClashes(data: Fields, fieldMap: Map<string, string>): void {
   const msgKey = resolveKey(FieldKey.msg, fieldMap);
   const msg = data[msgKey];
@@ -52,6 +53,7 @@ function prefixFieldClashes(data: Fields, fieldMap: Map<string, string>): void {
     delete data[timeKey];
   }
 }
+/* eslint-enable @typescript-eslint/no-dynamic-delete */
 
 /** A `Formatter` that formats logs as `JSON`. */
 export class JSONFormatter {
@@ -73,7 +75,7 @@ export class JSONFormatter {
     this.disableTimestamp = opts?.disableTimestamp ?? false;
     this.dataKey = opts?.dataKey ?? "";
     this.prettyPrint = opts?.prettyPrint ?? false;
-    this.fieldMap = opts?.fieldMap ?? new Map();
+    this.fieldMap = opts?.fieldMap ?? new Map<string, string>();
   }
 
   format(log: Log): Result<Uint8Array, error> {
@@ -164,7 +166,7 @@ export class TextFormatter {
     this.disableLevelTruncation = opts?.disableLevelTruncation ?? false;
     this.padLevelText = opts?.padLevelText ?? false;
     this.quoteEmptyFields = opts?.quoteEmptyFields ?? false;
-    this.fieldMap = opts?.fieldMap ?? new Map();
+    this.fieldMap = opts?.fieldMap ?? new Map<string, string>();
   }
 
   #init(log: Log): void {
@@ -173,12 +175,12 @@ export class TextFormatter {
       // This is a hack to make this work cross target
 
       // Need to use any because we are checking for runtime properties
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const out = log.out as any;
+      const out = log.out as { rid?: number; fd?: number };
       if (typeof out.rid === "number") {
         // Deno will throw if an invalid rid is used
         // Do this to be safe
-        const r = Result.of(() => runtime.isatty(out.rid));
+        const { rid } = out;
+        const r = Result.of(() => runtime.isatty(rid));
         this.#isTerminal = r.success() ?? false;
       } else if (typeof out.fd === "number") {
         this.#isTerminal = runtime.isatty(out.fd);

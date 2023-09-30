@@ -1,50 +1,50 @@
 version: 2.1
 
-cache_key: &cache_key typescript-stdlib-20201125-{{ checksum "yarn.lock" }}
+cache_key: &cache_key typescript-stdlib-20201125-{{ checksum "pnpm-lock.yaml" }}
 
 jobs:
   lint-build-test:
     docker:
-      - image: cszatmary/cimg-node:lts
+      - image: cszatmary/cimg-node:20
     working_directory: /mnt/ramdisk
     steps:
       - checkout
       - restore_cache:
-          name: Restore yarn cache
+          name: Restore pnpm cache
           keys:
             - *cache_key
       - run:
           name: Install dependencies
-          command: yarn install --frozen-lockfile
+          command: pnpm install --frozen-lockfile
       - save_cache:
-          name: Save yarn cache
+          name: Save pnpm cache
           key: *cache_key
           paths:
             - node_modules/
       - run:
           name: Setup project
-          command: yarn setup
+          command: pnpm run setup
       - run:
           name: Ensure no dependencies
-          command: yarn ensure-no-deps
+          command: pnpm run ensure-no-deps
       - run:
           name: Run linter
-          command: yarn lint
+          command: pnpm run lint
       - run:
           name: Check types
-          command: yarn check-types
+          command: pnpm run check-types
       - run:
           name: Build library for targets
-          command: yarn build
+          command: pnpm run build
       - run:
           name: Run deno tests
-          command: yarn test:deno
+          command: pnpm run test:deno
       - run:
           name: Run node tests
-          command: yarn test:node:ci
+          command: pnpm run test:node:ci
       - run:
           name: Run e2e tests
-          command: yarn e2e
+          command: pnpm run e2e
 
 workflows:
   build-test:

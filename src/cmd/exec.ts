@@ -39,7 +39,7 @@ export function exec(
 
     // Collect stdout chunks if stdout was `pipe`
     if (cp.stdout != null) {
-      cp.stdout.on("data", (data) => {
+      cp.stdout.on("data", (data: Buffer | string) => {
         if (!Buffer.isBuffer(data)) {
           stdoutChunks.push(Buffer.from(data));
         } else {
@@ -50,7 +50,7 @@ export function exec(
 
     // Collect stderr chunks if stdout was `pipe`
     if (cp.stderr != null) {
-      cp.stderr.on("data", (data) => {
+      cp.stderr.on("data", (data: Buffer | string) => {
         if (!Buffer.isBuffer(data)) {
           stderrChunks.push(Buffer.from(data));
         } else {
@@ -103,10 +103,14 @@ export function execSync(
 
   const execResult: ExecResult = {};
 
+  // The node types are wrong, this can be null if stdio is 'ignore'
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (res.stdout != null) {
     execResult.stdout = res.stdout;
   }
 
+  // The node types are wrong, this can be null if stdio is 'ignore'
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (res.stderr != null) {
     execResult.stderr = res.stderr;
   }

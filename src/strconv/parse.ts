@@ -45,17 +45,17 @@ export function isNumError(err: unknown): err is NumError {
   return typeof e.func === "string" && typeof e.num === "string" && errors.isError(e.err);
 }
 
-const enum ASCIICode {
-  n0 = 48,
-  n9 = 57,
-  _ = 95,
-  a = 97,
-  b = 98,
-  f = 102,
-  o = 111,
-  x = 120,
-  z = 122,
-}
+const asciiCodes = {
+  n0: 48,
+  n9: 57,
+  _: 95,
+  a: 97,
+  b: 98,
+  f: 102,
+  o: 111,
+  x: 120,
+  z: 122,
+};
 
 function lower(c: number): number {
   // ASCII trick to convert upper case to lower case
@@ -79,7 +79,7 @@ function underscoreOK(str: string): boolean {
   let s = str;
 
   // Optional sign.
-  if ((s.length >= 1 && s[0] === "-") || s[0] === "+") {
+  if ((s.length >= 1 && s.startsWith("-")) || s.startsWith("+")) {
     s = s.slice(1);
   }
 
@@ -87,14 +87,14 @@ function underscoreOK(str: string): boolean {
   let hex = false;
   if (
     s.length >= 2 &&
-    s[0] === "0" &&
-    (lower(s.charCodeAt(1)) === ASCIICode.b ||
-      lower(s.charCodeAt(1)) === ASCIICode.o ||
-      lower(s.charCodeAt(1)) === ASCIICode.x)
+    s.startsWith("0") &&
+    (lower(s.charCodeAt(1)) === asciiCodes.b ||
+      lower(s.charCodeAt(1)) === asciiCodes.o ||
+      lower(s.charCodeAt(1)) === asciiCodes.x)
   ) {
     startIndex = 2;
     saw = "0"; // base prefix counts as a digit for "underscore as digit separator"
-    hex = lower(s.charCodeAt(1)) === ASCIICode.x;
+    hex = lower(s.charCodeAt(1)) === asciiCodes.x;
   }
 
   // Number proper.
@@ -103,15 +103,15 @@ function underscoreOK(str: string): boolean {
 
     // Digits are always okay.
     if (
-      (c >= ASCIICode.n0 && c <= ASCIICode.n9) ||
-      (hex && lower(c) >= ASCIICode.a && lower(c) <= ASCIICode.f)
+      (c >= asciiCodes.n0 && c <= asciiCodes.n9) ||
+      (hex && lower(c) >= asciiCodes.a && lower(c) <= asciiCodes.f)
     ) {
       saw = "0";
       continue;
     }
 
     // Underscore must follow digit.
-    if (c === ASCIICode._) {
+    if (c === asciiCodes._) {
       if (saw !== "0") {
         return false;
       }
@@ -176,7 +176,7 @@ export function parseInt(str: string, base = 10): Result<number, error> {
 
   // Pick off leading sign
   let s = str;
-  if (s[0] === "-" || s[0] === "+") {
+  if (s.startsWith("-") || s.startsWith("+")) {
     s = s.slice(1);
     if (s.length < 1) {
       return Result.failure(new NumError(fnParseInt, str, errSyntax));
@@ -187,7 +187,7 @@ export function parseInt(str: string, base = 10): Result<number, error> {
   if (base === 10 && str.length < 16) {
     let n = 0;
     for (let i = 0; i < s.length; i++) {
-      const c = s.charCodeAt(i) - ASCIICode.n0;
+      const c = s.charCodeAt(i) - asciiCodes.n0;
       if (c > 9) {
         return Result.failure(new NumError(fnParseInt, str, errSyntax));
       }
@@ -195,7 +195,7 @@ export function parseInt(str: string, base = 10): Result<number, error> {
       n = n * 10 + c;
     }
 
-    if (str[0] === "-") {
+    if (str.startsWith("-")) {
       n = -n;
     }
 
@@ -208,14 +208,14 @@ export function parseInt(str: string, base = 10): Result<number, error> {
   if (actualBase === 0) {
     // look for base prefix
     actualBase = 10;
-    if (s[0] === "0") {
-      if (s.length >= 3 && lower(s.charCodeAt(1)) === ASCIICode.b) {
+    if (s.startsWith("0")) {
+      if (s.length >= 3 && lower(s.charCodeAt(1)) === asciiCodes.b) {
         actualBase = 2;
         s = s.slice(2);
-      } else if (s.length >= 3 && lower(s.charCodeAt(1)) === ASCIICode.o) {
+      } else if (s.length >= 3 && lower(s.charCodeAt(1)) === asciiCodes.o) {
         actualBase = 8;
         s = s.slice(2);
-      } else if (s.length >= 3 && lower(s.charCodeAt(1)) === ASCIICode.x) {
+      } else if (s.length >= 3 && lower(s.charCodeAt(1)) === asciiCodes.x) {
         actualBase = 16;
         s = s.slice(2);
       } else {
@@ -238,13 +238,13 @@ export function parseInt(str: string, base = 10): Result<number, error> {
   for (let i = 0; i < s.length; i++) {
     const c = s.charCodeAt(i);
     let d: number;
-    if (c === ASCIICode._ && base === 0) {
+    if (c === asciiCodes._ && base === 0) {
       underscores = true;
       continue;
-    } else if (c >= ASCIICode.n0 && c <= ASCIICode.n9) {
-      d = c - ASCIICode.n0;
-    } else if (lower(c) >= ASCIICode.a && lower(c) <= ASCIICode.z) {
-      d = lower(c) - ASCIICode.a + 10;
+    } else if (c >= asciiCodes.n0 && c <= asciiCodes.n9) {
+      d = c - asciiCodes.n0;
+    } else if (lower(c) >= asciiCodes.a && lower(c) <= asciiCodes.z) {
+      d = lower(c) - asciiCodes.a + 10;
     } else {
       return Result.failure(new NumError(fnParseInt, str, errSyntax));
     }
@@ -272,7 +272,7 @@ export function parseInt(str: string, base = 10): Result<number, error> {
     return Result.failure(new NumError(fnParseInt, str, errSyntax));
   }
 
-  if (str[0] === "-") {
+  if (str.startsWith("-")) {
     n = -n;
   }
 

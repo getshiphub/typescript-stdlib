@@ -6,6 +6,7 @@ class MockStdio {
   data: Buffer[] = [];
 
   constructor(stream: NodeJS.WritableStream) {
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     this.#originalWrite = stream.write;
     this.stream = stream;
     this.stream.write = this.#write.bind(this);

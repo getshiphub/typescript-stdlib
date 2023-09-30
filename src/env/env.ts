@@ -87,7 +87,7 @@ function isAlphaNum(c: string): boolean {
  * expansion and two more bytes are needed than the length of the name.
  */
 function getShellName(s: string): [string, number] {
-  if (s[0] === "{") {
+  if (s.startsWith("{")) {
     if (s.length > 2 && shellSpecialVarSet.has(s[1]) && s[2] === "}") {
       return [s.slice(1, 2), 3];
     }

@@ -23,7 +23,7 @@ declare global {
 
 /** Globally available symbols. */
 export const symbols = Object.freeze({
-  copy: Symbol.for("node-stdlib.copy"),
+  copy: Symbol.for("typescript-stdlib.copy"),
 }) as {
   /**
    * The copy symbol can be used to implement a method on a type that
@@ -156,6 +156,7 @@ export class Ref<T> {
 
   /** Custom inspect implementation to print a debug description. */
   [runtime.customInspect](): string {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `Ref(${this.#value})`;
   }
 }
@@ -264,6 +265,7 @@ class Success<S, F> implements ResultCase<S, F> {
   }
 
   [runtime.customInspect](): string {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `Result.success(${this.#value})`;
   }
 }
@@ -325,6 +327,7 @@ class Failure<S, F> implements ResultCase<S, F> {
       return `Result.failure(${this.#cause.error()})`;
     }
 
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `Result.failure(${this.#cause})`;
   }
 }
@@ -341,12 +344,12 @@ type ExtractPromise<P> = P extends Promise<infer T> ? T : never;
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const Result = {
   /** Creates a new result of type Success with the given value. */
-  success<S, F>(value: S): Result<S, F> {
+  success<S, F>(this: void, value: S): Result<S, F> {
     return new Success(value);
   },
 
   /** Creates a new result of type Failure with the given error value. */
-  failure<S, F>(cause: F): Result<S, F> {
+  failure<S, F>(this: void, cause: F): Result<S, F> {
     return new Failure(cause);
   },
 
@@ -354,7 +357,7 @@ export const Result = {
    * Creates a new result by evaluating a throwing closure,
    * capturing the returned value as a success, or any thrown error as a failure.
    */
-  of<S>(catching: () => S): Result<S, Error> {
+  of<S>(this: void, catching: () => S): Result<S, Error> {
     try {
       return new Success(catching());
     } catch (err: unknown) {
@@ -370,7 +373,7 @@ export const Result = {
    * ofPromise is like `Result.of` but takes a closure that returns a promise.
    * The returned promise will always resolve to a Result.
    */
-  async ofPromise<S>(catching: () => Promise<S>): Promise<Result<S, Error>> {
+  async ofPromise<S>(this: void, catching: () => Promise<S>): Promise<Result<S, Error>> {
     try {
       return new Success(await catching());
     } catch (err: unknown) {
@@ -388,12 +391,12 @@ export const Result = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resultify<F extends (...args: any) => any>(
+    this: void,
     fn: F,
   ): (...args: Parameters<F>) => Result<ReturnType<F>, Error> {
     return (...args): Result<ReturnType<F>, Error> => {
       try {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error This is a case where we know better
         return new Success(fn(...args));
       } catch (err: unknown) {
         if (isJSError(err)) {
@@ -411,19 +414,20 @@ export const Result = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resultifyPromise<F extends (...args: any) => Promise<any>>(
+    this: void,
     fn: F,
   ): (...args: Parameters<F>) => Promise<Result<ExtractPromise<ReturnType<F>>, Error>> {
     return (...args): Promise<Result<ExtractPromise<ReturnType<F>>, Error>> => {
       return new Promise((resolve) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error This is a case where we know better
         fn(...args)
           .then((val) => {
-            return resolve(new Success(val));
+            resolve(new Success(val));
           })
           .catch((err: unknown) => {
             if (isJSError(err)) {
               resolve(new Failure(err));
+              return;
             }
 
             resolve(new Failure(new Error(toString(err))));

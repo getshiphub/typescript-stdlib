@@ -76,6 +76,7 @@ class StdioWriter {
 
       // If an error occurred return since resolve has already been called
       // with the error
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (errorOccurred) {
         return;
       }

@@ -22,62 +22,75 @@
     "dist/node/"
   ],
   "engines": {
-    "node": ">= 12.10.0"
+    "node": ">= 20.0.0"
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build:deno": "node scripts/target_generator.js deno",
-    "build:node": "node scripts/target_generator.js node",
-    "build": "yarn build:deno && yarn build:node",
+    "build:deno": "node scripts/target_generator.mjs deno",
+    "build:node": "node scripts/target_generator.mjs node",
+    "build": "pnpm run build:deno && pnpm run build:node",
     "check-types": "tsc",
-    "clean": "rimraf dist && rimraf coverage && rimraf .deno-release",
-    "deno-release": "node scripts/deno_release.js",
+    "clean": "node scripts/clean.mjs",
+    "deno-release": "node scripts/deno_release.mjs",
     "e2e:deno": "deno run e2e/smoke_deno.ts",
-    "e2e": "yarn e2e:deno",
-    "ensure-no-deps": "node scripts/ensure_no_deps.js",
-    "fmt": "prettier --write '{scripts,src,test}/**/*.{js,ts}'",
+    "e2e": "pnpm run e2e:deno",
+    "ensure-no-deps": "node scripts/ensure_no_deps.mjs",
+    "fmt": "prettier --write '{scripts,src,test}/**/*.{js,mjs,ts}'",
     "gen-deno-types": "deno types > ./src/_runtime/deno.d.ts",
-    "lint:deno": "deno lint --unstable test/deno",
+    "lint:deno": "deno lint test/deno",
     "lint:node": "eslint --ext=js,ts .",
     "lint:node:fix": "eslint --fix --ext=js,ts .",
-    "lint": "yarn lint:deno && yarn lint:node",
-    "lint:fix": "yarn lint:node",
-    "prepare-release": "yarn build && yarn verify",
+    "lint": "pnpm run lint:deno && pnpm run lint:node",
+    "lint:fix": "pnpm run lint:node",
+    "prepare-release": "pnpm run build && pnpm run verify",
     "setup": "husky install",
     "release": "release-it --only-version",
     "test:deno": "deno test --allow-env --allow-read --allow-run test/deno/",
     "test:node": "NODE_ENV=test jest --coverage",
     "test:node:ci": "NODE_ENV=test jest --coverage --runInBand --colors",
     "test:node:nocover": "NODE_ENV=test jest",
-    "test": "yarn test:deno && yarn test:node",
-    "verify": "yarn ensure-no-deps && yarn lint && yarn check-types && yarn test && yarn e2e"
+    "test": "pnpm run test:deno && pnpm run test:node",
+    "verify": "pnpm run ensure-no-deps && pnpm run lint && pnpm run check-types && pnpm run test && pnpm run e2e"
   },
   "devDependencies": {
-    "@shiphub/eslint-config": "^0.0.3",
-    "@types/jest": "^27.0.2",
-    "@types/node": "^14.14.37",
-    "@types/rimraf": "^3.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.3.0",
-    "@typescript-eslint/parser": "^5.3.0",
-    "eslint": "^8.2.0",
-    "eslint-import-resolver-typescript": "^2.5.0",
-    "eslint-plugin-import": "^2.25.2",
-    "husky": "^7.0.4",
-    "jest": "^27.3.1",
-    "lint-staged": "^11.2.6",
-    "prettier": "^2.4.1",
-    "release-it": "^14.11.6",
-    "rimraf": "^3.0.2",
-    "ts-jest": "^27.0.7",
-    "typescript": "^4.4.4"
+    "@shiphub/eslint-config": "^0.0.4",
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.7.2",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "eslint": "^8.50.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.28.1",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.3",
+    "release-it": "^16.2.1",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
   },
   "eslintConfig": {
     "extends": [
       "@shiphub"
-    ]
+    ],
+    "rules": {
+      "@typescript-eslint/unified-signatures": "off",
+      "@typescript-eslint/no-unnecessary-condition": [
+        "error",
+        {
+          "allowConstantLoopConditions": true
+        }
+      ],
+      "@typescript-eslint/no-invalid-void-type": [
+        "error",
+        {
+          "allowAsThisParameter": true
+        }
+      ]
+    }
   },
   "lint-staged": {
     "*.{js,ts,json}": [
