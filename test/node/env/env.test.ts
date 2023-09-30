@@ -1,4 +1,4 @@
-/* eslint-disable no-template-curly-in-string */
+/* eslint-disable @typescript-eslint/no-dynamic-delete */
 
 import { env } from "../../../src";
 

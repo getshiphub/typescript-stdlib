@@ -1,9 +1,7 @@
-"use strict";
-
-const cp = require("child_process");
-const fs = require("fs");
-const path = require("path");
-const ts = require("typescript");
+import cp from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import ts from "typescript";
 
 const supportedTargets = new Set(["deno", "node"]);
 
@@ -92,8 +90,10 @@ const Action = {
 function parseConfig(rootDir, targetName) {
   const data = fs.readFileSync(path.join(rootDir, "targets.json"), { encoding: "utf-8" });
   /** @type {Config} */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const config = JSON.parse(data);
   const targetConfig = config.targets[targetName];
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (targetConfig === undefined) {
     fail(`No such target: ${targetName}`);
   }
@@ -206,7 +206,7 @@ if (!supportedTargets.has(targetName)) {
   fail(`${targetName} is not a supported target`);
 }
 
-const rootDir = path.resolve(__dirname, "../");
+const rootDir = ".";
 const target = parseConfig(rootDir, targetName);
 const srcDir = path.join(rootDir, "src");
 const dstDir = path.join(rootDir, "dist", target.name);
@@ -249,6 +249,7 @@ const transformer = (context) => {
     const visitor = (node) => {
       // Add .ts extension to imports
       if (ts.isImportDeclaration(node)) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (node.moduleSpecifier == null || !ts.isStringLiteral(node.moduleSpecifier)) {
           return node;
         }

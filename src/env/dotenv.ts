@@ -26,8 +26,8 @@ function parseValue(value: string, envMap: Map<string, string>): string {
 
   // check if we've got quoted values or possible escapes
   const end = v.length - 1;
-  const hasSingleQuotes = v[0] === "'" && v[end] === "'";
-  const hasDoubleQuotes = v[0] === `"` && v[end] === `"`;
+  const hasSingleQuotes = v.startsWith("'") && v[end] === "'";
+  const hasDoubleQuotes = v.startsWith(`"`) && v[end] === `"`;
   if (hasSingleQuotes || hasDoubleQuotes) {
     // pull the quotes off the edges
     v = v.slice(1, end);
@@ -58,6 +58,7 @@ function parseValue(value: string, envMap: Map<string, string>): string {
       }
       if (submatch[1] === "\\" || submatch[2] === "(") {
         return submatch[0].slice(1);
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       } else if (submatch[4] !== undefined) {
         return envMap.get(submatch[4]) ?? "";
       }

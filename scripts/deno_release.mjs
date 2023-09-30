@@ -1,10 +1,8 @@
-"use strict";
+import cp from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
-const cp = require("child_process");
-const fs = require("fs");
-const path = require("path");
-
-const rootDir = path.resolve(__dirname, "../");
+const rootDir = ".";
 const denoReleaseDir = path.join(rootDir, ".deno-release");
 const repo = "git@github.com:getshiphub/typescript-stdlib.git";
 const branch = "deno-latest";
@@ -105,6 +103,7 @@ const action = args[0];
 switch (action) {
   case "prepare": {
     const version = args[1];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (version == null) {
       fail("deno_release: release: version required as the second argument");
     }

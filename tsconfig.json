@@ -9,7 +9,8 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "checkJs": true, // Needed for scripts
-    "noEmit": true
+    "noEmit": true,
+    "skipLibCheck": true
   },
   "include": ["scripts", "src", "test/node"],
   "exclude": ["node_modules", "dist"]

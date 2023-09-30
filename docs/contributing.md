@@ -4,20 +4,20 @@ Please read the [style guide](style_guide.md).
 
 ### Prerequesites
 
-- [Node.js](https://nodejs.org/en/download/) - must be a supported LTS version
-- [Yarn 1](https://classic.yarnpkg.com/en/docs/install)
+- [Node.js](https://nodejs.org/en/download/) - must be version 20+
+- [pnpm](https://pnpm.io/installation)
 - [Deno](https://deno.land/manual/getting_started/installation)
 
 Install development dependencies:
 
 ```
-yarn install
+pnpm install
 ```
 
 Perform any additional required setup:
 
 ```
-yarn setup
+pnpm run setup
 ```
 
 ## Building
@@ -25,19 +25,19 @@ yarn setup
 To build for all targets:
 
 ```
-yarn build
+pnpm run build
 ```
 
 To build only for node:
 
 ```
-yarn build:node
+pnpm run build:node
 ```
 
 To build only for deno:
 
 ```
-yarn build:deno
+pnpm run build:deno
 ```
 
 ## Testing
@@ -45,25 +45,25 @@ yarn build:deno
 To run tests for all targets:
 
 ```
-yarn test
+pnpm run test
 ```
 
 To run only the node tests:
 
 ```
-yarn test:node
+pnpm run test:node
 ```
 
 To run only the deno tests:
 
 ```
-yarn test:deno
+pnpm run test:deno
 ```
 
 To run e2e tests run:
 
 ```
-yarn e2e
+pnpm run e2e
 ```
 
 ## Linting
@@ -71,7 +71,7 @@ yarn e2e
 To lint all files:
 
 ```
-yarn lint
+pnpm run lint
 ```
 
 This uses [eslint](https://eslint.org) for all files except `test/deno` which uses [deno lint](https://deno.land/manual/tools/linter).
@@ -79,13 +79,13 @@ This uses [eslint](https://eslint.org) for all files except `test/deno` which us
 You can run only eslint by running:
 
 ```
-yarn lint:node
+pnpm run lint:node
 ```
 
 Or only `deno lint`:
 
 ```
-yarn lint:deno
+pnpm run lint:deno
 ```
 
 ## Formatting code
@@ -93,5 +93,5 @@ yarn lint:deno
 All code is formatted using [prettier](https://prettier.io).
 
 ```
-yarn fmt
+pnpm run fmt
 ```

@@ -104,7 +104,7 @@ export function copy<T>(v: T): T {
       a.push(copy(e));
     }
 
-    return (a as unknown) as T;
+    return a as unknown as T;
   }
 
   // Handle primatives
@@ -113,7 +113,7 @@ export function copy<T>(v: T): T {
   }
 
   if (v instanceof Date) {
-    return (new Date(v.getTime()) as unknown) as T;
+    return new Date(v.getTime()) as unknown as T;
   }
 
   if (v instanceof Map) {
@@ -121,7 +121,7 @@ export function copy<T>(v: T): T {
     for (const [k, val] of v) {
       m.set(k, copy(val));
     }
-    return (m as unknown) as T;
+    return m as unknown as T;
   }
 
   if (v instanceof Set) {
@@ -129,11 +129,11 @@ export function copy<T>(v: T): T {
     for (const e of v) {
       s.add(copy(e));
     }
-    return (s as unknown) as T;
+    return s as unknown as T;
   }
 
   if (isTypedArray(v)) {
-    return (v.slice() as unknown) as T;
+    return v.slice() as unknown as T;
   }
 
   if (isCopyable(v)) {
@@ -164,7 +164,7 @@ export function merge<T extends Record<string, unknown>, S extends Record<string
 
   // Do lazy way for now. Can optimize later to remove the intermediate shallow copy.
   if (Array.isArray(x) && Array.isArray(y)) {
-    return (copy([...x, ...y]) as unknown) as T & S;
+    return copy([...x, ...y]) as unknown as T & S;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,11 +176,14 @@ export function merge<T extends Record<string, unknown>, S extends Record<string
     }
 
     if (k in x && (isObject(v) || Array.isArray(v))) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       dest[k] = merge(x[k] as Record<string, unknown>, v);
       continue;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     dest[k] = copy(v);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return dest;
 }

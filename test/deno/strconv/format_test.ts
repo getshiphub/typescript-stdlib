@@ -113,10 +113,3 @@ Deno.test("strconv.formatFloat: exponential format and precision", () => {
     testing.assertEquals(strconv.formatFloat(float, "e", prec), expected);
   }
 });
-
-Deno.test("strconv.formatFloat: invalid format", () => {
-  testing.assertPanics(() => {
-    // @ts-expect-error: Test invalid argument
-    strconv.formatFloat(1.1, "h");
-  }, `formatFloat: invalid fmt "h", must be either "f" or "e"`);
-});

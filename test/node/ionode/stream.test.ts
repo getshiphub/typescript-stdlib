@@ -1,7 +1,8 @@
+import fs from "fs";
 import { PassThrough } from "stream";
 import os from "os";
 import path from "path";
-import { bytes, fs, io, ionode } from "../../../src";
+import { bytes, io, ionode } from "../../../src";
 
 describe("ionode/stream.ts", () => {
   test("ionode.StreamReader", async () => {
@@ -216,12 +217,11 @@ describe("ionode/stream.ts", () => {
     let tmpDir: string;
 
     beforeEach(async () => {
-      const r = await fs.mkdtemp(`${os.tmpdir()}${path.sep}`);
-      tmpDir = r.unwrap();
+      tmpDir = await fs.promises.mkdtemp(`${os.tmpdir()}${path.sep}`);
     });
 
     afterEach(async () => {
-      await fs.removeAll(tmpDir);
+      await fs.promises.rm(tmpDir, { recursive: true, force: true });
     });
 
     test("write to file", async () => {
@@ -235,8 +235,7 @@ describe("ionode/stream.ts", () => {
       expect(result.unwrap()).toBe(56);
       expect(endResult).toBeSuccess();
 
-      const fileResult = await fs.readFile(fp);
-      const b = new bytes.DynamicBuffer(fileResult.unwrap());
+      const b = new bytes.DynamicBuffer(await fs.promises.readFile(fp));
       expect(b.toString()).toBe(content);
     });
 
@@ -255,10 +254,8 @@ describe("ionode/stream.ts", () => {
       expect(result.unwrap()).toBe(3100);
       expect(endResult).toBeSuccess();
 
-      const srcResult = await fs.readFile(srcPath);
-      const srcData = new bytes.DynamicBuffer(srcResult.unwrap());
-      const dstResult = await fs.readFile(dstPath);
-      const dstData = new bytes.DynamicBuffer(dstResult.unwrap());
+      const srcData = new bytes.DynamicBuffer(await fs.promises.readFile(srcPath));
+      const dstData = new bytes.DynamicBuffer(await fs.promises.readFile(dstPath));
       expect(dstData.bytes()).toEqual(srcData.bytes());
     });
   });

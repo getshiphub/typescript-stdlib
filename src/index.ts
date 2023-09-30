@@ -8,7 +8,6 @@ export * as cmd from "./cmd/mod";
 export * as colors from "./colors/mod";
 export * as env from "./env/mod";
 export * as errors from "./errors/mod";
-export * as fs from "./fs/mod";
 export * as hex from "./hex/mod";
 export * as http from "./http/mod";
 export * as io from "./io/mod";

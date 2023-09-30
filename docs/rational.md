@@ -8,7 +8,7 @@ When a third party library is needed, it is for something non-trival and contain
 Examples are `cobra`(https://github.com/spf13/cobra) for building CLIs or the [Docker Go SDK](https://github.com/moby/moby/tree/master/client).
 As a result the package explosion that is often common in the node ecosystem doesn't occur.
 
-After working with Go so much, we became more and more frustrated with npm and `node_modules`. Specifically the culture around having tons of small packages and preferring to `npm install` to get 2 lines of code instead of writing it yourself. We got tired of `node_modules` always exploding and becoming massive, and `yarn.lock` having thousands of lines for all the transitive dependencies.
+After working with Go so much, we became more and more frustrated with npm and `node_modules`. Specifically the culture around having tons of small packages and preferring to `npm install` to get 2 lines of code instead of writing it yourself. We got tired of `node_modules` always exploding and becoming massive, and `package-lock.json`/`yarn.lock` having thousands of lines for all the transitive dependencies.
 
 `typescript-stdlib` is an attempted solution to this problem by bringing the Go mentality to node. This library has **zero** dependencies and provides a rich set of core functionality that can be used for a wide variety of tasks. The goal is to add this one dependency instead of installing a multitude of small packages.
 

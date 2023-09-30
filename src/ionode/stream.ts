@@ -18,11 +18,13 @@ export interface WritableStream extends NodeJS.WritableStream {
 }
 
 function hasReadableStreamEnded(stream: ReadableStream): boolean {
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   return !stream.readable || stream.readableEnded || stream.destroyed || false;
 }
 
 function isWritableStreamClosed(stream: WritableStream): boolean {
   return (
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     !stream.writable || stream.writableEnded || stream.writableFinished || stream.destroyed || false
   );
 }
@@ -80,7 +82,7 @@ export class StreamReader {
       const readableHandler = (): void => {
         removeListeners();
         // Not sure why the type doesn't include null, this is clearly stated in the docs
-        let chunk: string | Buffer | null = this.#stream.read(p.byteLength);
+        let chunk = this.#stream.read(p.byteLength) as string | Buffer | null;
 
         if (chunk === null) {
           // If we got null this could mean one of two things
@@ -89,7 +91,7 @@ export class StreamReader {
           // Readable streams won't return any data if there isn't the exact amount asked for
 
           // Read again without a specified size to determine which case it was
-          chunk = this.#stream.read();
+          chunk = this.#stream.read() as string | Buffer | null;
 
           // If we got null a second time this means eof
           if (chunk === null) {
@@ -101,7 +103,7 @@ export class StreamReader {
         // Handle chunk being a string
         let buf: Buffer;
         if (typeof chunk === "string") {
-          const encoding = (this.#stream.readableEncoding ?? "utf-8") as BufferEncoding;
+          const encoding = this.#stream.readableEncoding ?? "utf-8";
           buf = Buffer.from(chunk, encoding);
         } else {
           buf = chunk;
@@ -184,6 +186,7 @@ export class StreamWriter {
 
       // If an error occurred return since resolve has already been called
       // with the error
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (errorOccurred) {
         return;
       }

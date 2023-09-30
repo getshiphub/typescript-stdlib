@@ -21,9 +21,9 @@ Install the package using npm:
 npm install typescript-stdlib
 ```
 
-Or use yarn:
+Or use pnpm:
 ```
-yarn add typescript-stdlib
+pnpm add typescript-stdlib
 ```
 
 Import the desired modules:

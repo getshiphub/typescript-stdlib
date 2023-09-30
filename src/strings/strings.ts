@@ -21,7 +21,8 @@ export function toCodePoint(s: string): CodePoint {
     panic("strings.toCodePoint: empty string");
   }
   // Should never be undefined because we checked that the string isn't empty
-  return s.codePointAt(0) as number;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return s.codePointAt(0)!;
 }
 
 /**
@@ -84,7 +85,7 @@ export function lastIndexAny(s: string, chars: string): number {
   }
 
   if (s.length === 1) {
-    if (chars.indexOf(s) >= 0) {
+    if (chars.includes(s)) {
       return 0;
     }
 
